@@ -251,17 +251,36 @@ public final class SealFx {
         }
     }
 
-    /** Estela de los ojos rojos (dos puntos de luz que se quedan atrás al moverse). */
+    /**
+     * Estela de los ojos rojos. Sale exactamente de los ojos del modelo y sigue a la cabeza
+     * (giro e inclinación), tanto en forma humana como de hombre lobo.
+     */
     public static void eyeTrail(Player player) {
         Level level = player.level();
-        Vec3 eye = player.getEyePosition();
-        Vec3 look = Vec3.directionFromRotation(0, player.getYHeadRot());
-        Vec3 right = new Vec3(-look.z, 0, look.x);
-        double scale = com.markadrii.seals.seal.SealVisuals.werewolf(player) ? 1.1 : 1.0;
+        boolean wolf = com.markadrii.seals.seal.SealVisuals.werewolf(player);
+
+        // Medidas del modelo (en píxeles de modelo, 16 px = 1 bloque)
+        float modelScale = wolf ? 1.1F * 0.9375F : 0.9375F;
+        double px = modelScale / 16.0;
+        double neckY = (player.isCrouching() ? 20.0 : 24.0) * px;  // el cuello (pivote de la cabeza)
+        double eyeUp = (wolf ? 4.5 : 3.5) * px;                      // altura de los ojos sobre el cuello
+        double eyeFwd = 4.2 * px;                                    // un poco por delante de la cara
+        double eyeSide = 2.0 * px;                                   // separación de cada ojo
+
+        float yaw = (float) Math.toRadians(player.getYHeadRot());
+        float pitch = (float) Math.toRadians(player.getXRot());
+        double cosP = Math.cos(pitch), sinP = Math.sin(pitch);
+        // Inclinación: hacia abajo el punto de los ojos baja y retrocede
+        double up = eyeUp * cosP - eyeFwd * sinP;
+        double fwd = eyeFwd * cosP + eyeUp * sinP;
+        Vec3 forward = new Vec3(-Math.sin(yaw), 0, Math.cos(yaw));
+        Vec3 right = new Vec3(-Math.cos(yaw), 0, -Math.sin(yaw));
+        Vec3 base = player.position().add(0, neckY + up, 0).add(forward.scale(fwd));
+
         for (int side = -1; side <= 1; side += 2) {
-            Vec3 p = eye.add(look.scale(0.27 * scale)).add(right.scale(0.11 * side * scale)).add(0, 0.03, 0);
+            Vec3 p = base.add(right.scale(eyeSide * side));
             WorldParticleBuilder.create(LodestoneParticleRegistry.WISP_PARTICLE)
-                    .setScaleData(GenericParticleData.create(0.07F, 0.0F).build())
+                    .setScaleData(GenericParticleData.create(0.06F, 0.0F).build())
                     .setTransparencyData(GenericParticleData.create(0.9F, 0F).build())
                     .setColorData(color(EMBER, BLOOD))
                     .setLifetime(10)

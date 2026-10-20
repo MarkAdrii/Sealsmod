@@ -52,10 +52,11 @@ public class WerewolfModel extends HumanoidModel<AbstractClientPlayer> {
         PartDefinition leftArm = root.addOrReplaceChild("left_arm", CubeListBuilder.create()
                 .texOffs(48, 36).addBox(-1.0F, -2.0F, -2.0F, 4, 14, 4, none), PartPose.offset(5.0F, 2.0F, 0.0F));
         for (int i = 0; i < 3; i++) {
+            // Las garras nacen dentro de la mano (1 px metidas) y no sobresalen por los lados
             rightArm.addOrReplaceChild("claw_" + i, CubeListBuilder.create()
-                    .texOffs(56, 0).addBox(-2.6F + i * 1.3F, 12.0F, -2.6F, 1, 3, 1, none), PartPose.ZERO);
+                    .texOffs(56, 0).addBox(-2.4F + i * 1.2F, 11.0F, -2.2F, 1, 3, 1, none), PartPose.ZERO);
             leftArm.addOrReplaceChild("claw_" + i, CubeListBuilder.create()
-                    .texOffs(56, 0).addBox(-0.6F + i * 1.3F, 12.0F, -2.6F, 1, 3, 1, none), PartPose.ZERO);
+                    .texOffs(56, 0).addBox(-0.4F + i * 1.2F, 11.0F, -2.2F, 1, 3, 1, none), PartPose.ZERO);
         }
 
         // Piernas
