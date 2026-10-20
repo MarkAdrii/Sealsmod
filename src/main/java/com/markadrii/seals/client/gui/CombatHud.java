@@ -10,7 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.client.gui.overlay.ExtendedGui;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public final class CombatHud {
 
     private CombatHud() {}
 
-    private static void render(ExtendedGui gui, GuiGraphics g, float partialTick, int width, int height) {
+    private static void render(ForgeGui gui, GuiGraphics g, float partialTick, int width, int height) {
         Minecraft mc = Minecraft.getInstance();
         if (!ClientSealData.combatMode() || mc.options.hideGui || mc.player == null) return;
         SealData data = ClientSealData.get();
