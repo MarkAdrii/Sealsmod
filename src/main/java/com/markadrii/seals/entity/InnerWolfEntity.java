@@ -88,4 +88,9 @@ public class InnerWolfEntity extends Wolf implements InnerMob {
     public boolean removeWhenFarAway(double distance) {
         return false;
     }
+
+    /** Nunca desaparece solo (ni en dificultad Pacífico): lo quita el mod al salir. */
+    @Override
+    public void checkDespawn() {
+    }
 }

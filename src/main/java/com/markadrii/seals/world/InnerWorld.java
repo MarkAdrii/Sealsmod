@@ -64,6 +64,9 @@ public final class InnerWorld {
     private static final class Session {
         final BlockPos origin;
         UUID golemId;
+        boolean locked;      // la puerta está cerrada con llave (falta entregar lo que pide el mob)
+        int spawnDelay = 2;  // el mob aparece un par de ticks después de que llegue el jugador
+        int respawns;        // veces que ha habido que volver a ponerlo (por si algo lo borra)
         int doorStep = -1;   // -1 = cerrada, 0..DOOR_HALF = abriéndose, > DOOR_HALF = abierta
         int doorTimer;
         boolean prompted;    // ya le ha pedido la llave en esta visita
@@ -127,20 +130,12 @@ public final class InnerWorld {
         data.setFighting(false);
         data.setVisitFlags(0);
 
-        // El mob sellado, detrás de la puerta
+        // El mob sellado aparece detrás de la puerta en cuanto llegue el jugador (ver tick)
         Session session = new Session(origin);
-        Mob golem = def.createInnerMob(inner);
-        if (golem instanceof InnerMob innerMob) {
-            Vec3 home = new Vec3(origin.getX() + 0.5, origin.getY(), origin.getZ() + GOLEM_Z + 0.5);
-            float s = data.ageScale();
-            innerMob.setupInner(player, home, def.innerHealth() * s, def.innerAttack() * s);
-            golem.moveTo(home.x, home.y, home.z, 180.0F, 0.0F);
-            golem.setYHeadRot(180.0F);
-            golem.setYBodyRot(180.0F);
-            inner.addFreshEntity(golem);
-            session.golemId = golem.getUUID();
-        }
+        session.locked = def.innerKeyItem() != null && !data.innerKeyGiven();
         SESSIONS.put(player.getUUID(), session);
+        Seals.LOGGER.info("[Seals] {} entra en el mundo interior de {} (puerta {})", player.getGameProfile().getName(),
+                def.id(), session.locked ? "cerrada con llave" : "normal");
 
         player.teleportTo(inner, origin.getX() + 0.5, origin.getY(), origin.getZ() + 0.5, 0.0F, 0.0F);
         BlockPos door = doorCenter(origin);
@@ -175,6 +170,43 @@ public final class InnerWorld {
         SealManager.sync(player);
     }
 
+    /** Crea al mob sellado detrás de la puerta. */
+    private static void spawnMob(ServerLevel inner, ServerPlayer player, Session session) {
+        SealData data = com.markadrii.seals.seal.SealCapability.get(player);
+        SealDefinition def = data.definition();
+        if (def == null) return;
+        Mob golem = def.createInnerMob(inner);
+        if (!(golem instanceof InnerMob innerMob)) {
+            Seals.LOGGER.warn("[Seals] {} no tiene mob para el mundo interior", def.id());
+            return;
+        }
+        BlockPos o = session.origin;
+        Vec3 home = new Vec3(o.getX() + 0.5, o.getY(), o.getZ() + GOLEM_Z + 0.5);
+        float s = data.ageScale();
+        innerMob.setupInner(player, home, def.innerHealth() * s, def.innerAttack() * s);
+        golem.moveTo(home.x, home.y, home.z, 180.0F, 0.0F);
+        golem.setYHeadRot(180.0F);
+        golem.setYBodyRot(180.0F);
+        golem.setPersistenceRequired();
+        session.golemId = golem.getUUID();
+        if (!inner.addFreshEntity(golem)) {
+            Seals.LOGGER.warn("[Seals] No se pudo crear el mob del mundo interior");
+        }
+    }
+
+    /** Vuelve a poner la puerta (cerrada) por si se ha abierto o roto. */
+    private static void rebuildDoor(ServerLevel level, BlockPos o) {
+        BlockState door = ModBlocks.SPIRIT_DOOR.get().defaultBlockState();
+        BlockState frame = ModBlocks.SPIRIT_FRAME.get().defaultBlockState();
+        for (int y = 0; y < DOOR_HEIGHT; y++) {
+            for (int x = -DOOR_HALF; x <= DOOR_HALF; x++) {
+                BlockState want = x == 0 ? frame : door;
+                BlockPos pos = o.offset(x, y, DOOR_Z);
+                if (level.getBlockState(pos) != want) level.setBlock(pos, want, 3);
+            }
+        }
+    }
+
     /** Termina la visita: quita al mob del mundo interior. */
     public static void cleanup(MinecraftServer server, UUID owner) {
         Session s = SESSIONS.remove(owner);
@@ -196,24 +228,38 @@ public final class InnerWorld {
 
         for (Map.Entry<UUID, Session> e : SESSIONS.entrySet()) {
             Session s = e.getValue();
-            if (s.doorStep > DOOR_HALF) continue;
             ServerPlayer player = server.getPlayerList().getPlayer(e.getKey());
             if (player == null || player.level() != inner) continue;
 
+            // El mob aparece cuando el jugador ya está dentro, y reaparece si algo lo borra
+            if (s.spawnDelay > 0) {
+                if (--s.spawnDelay == 0) spawnMob(inner, player, s);
+            } else if (player.tickCount % 20 == 0 && s.respawns < 5) {
+                Entity current = s.golemId == null ? null : inner.getEntity(s.golemId);
+                if (current == null || !current.isAlive()) {
+                    s.respawns++;
+                    Seals.LOGGER.info("[Seals] El mob del mundo interior no estaba, se vuelve a crear");
+                    spawnMob(inner, player, s);
+                }
+            }
+
+            // Mientras falte la llave, la puerta se mantiene cerrada pase lo que pase
+            if (s.locked) {
+                if (player.tickCount % 20 == 0) rebuildDoor(inner, s.origin);
+                BlockPos door = doorCenter(s.origin);
+                double dz = door.getZ() - player.getZ();
+                if (dz < 16 && Math.abs(player.getX() - door.getX()) < HALF_WIDTH && !s.prompted) {
+                    s.prompted = true;
+                    com.markadrii.seals.bond.BondManager.promptKey(player);
+                }
+                continue;
+            }
+
+            if (s.doorStep > DOOR_HALF) continue;
             BlockPos door = doorCenter(s.origin);
             if (s.doorStep < 0) {
                 double dz = door.getZ() - player.getZ();
                 if (dz < 16 && Math.abs(player.getX() - door.getX()) < HALF_WIDTH) {
-                    // Algunos mobs no abren la puerta hasta que les traes algo (la primera vez)
-                    com.markadrii.seals.seal.SealData d = com.markadrii.seals.seal.SealCapability.get(player);
-                    SealDefinition def = d.definition();
-                    if (def != null && def.innerKeyItem() != null && !d.innerKeyGiven()) {
-                        if (!s.prompted) {
-                            s.prompted = true;
-                            com.markadrii.seals.bond.BondManager.promptKey(player);
-                        }
-                        continue;
-                    }
                     s.doorStep = 0;
                     s.doorTimer = 0;
                     inner.playSound(null, door, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 2.0F, 0.5F);
@@ -251,7 +297,9 @@ public final class InnerWorld {
     public static void openDoor(ServerPlayer player) {
         Session s = SESSIONS.get(player.getUUID());
         ServerLevel inner = player.server.getLevel(KEY);
-        if (s == null || inner == null || s.doorStep >= 0) return;
+        if (s == null || inner == null) return;
+        s.locked = false;
+        if (s.doorStep >= 0) return;
         s.doorStep = 0;
         s.doorTimer = 0;
         BlockPos door = doorCenter(s.origin);

@@ -150,6 +150,11 @@ public class InnerGolemEntity extends IronGolem implements InnerMob {
         return false;
     }
 
+    /** Nunca desaparece solo (ni en dificultad Pacífico): lo quita el mod al salir. */
+    @Override
+    public void checkDespawn() {
+    }
+
     @Override
     protected void dropCustomDeathLoot(DamageSource source, int looting, boolean hitByPlayer) {
     }

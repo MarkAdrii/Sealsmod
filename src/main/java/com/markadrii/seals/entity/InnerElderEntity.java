@@ -94,6 +94,11 @@ public class InnerElderEntity extends ElderGuardian implements InnerMob {
         return false;
     }
 
+    /** Nunca desaparece solo (ni en dificultad Pacífico): lo quita el mod al salir. */
+    @Override
+    public void checkDespawn() {
+    }
+
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
