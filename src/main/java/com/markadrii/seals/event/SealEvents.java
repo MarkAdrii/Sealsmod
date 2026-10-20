@@ -6,6 +6,7 @@ import com.markadrii.seals.seal.SealCapability;
 import com.markadrii.seals.seal.SealData;
 import com.markadrii.seals.seal.SealDefinition;
 import com.markadrii.seals.seal.SealManager;
+import com.markadrii.seals.seal.OldestOneData;
 import com.markadrii.seals.seal.SealVisuals;
 import com.markadrii.seals.seal.irongolem.IronGolemSeal;
 import net.minecraft.server.level.ServerPlayer;
@@ -133,7 +134,14 @@ public final class SealEvents {
 
     @SubscribeEvent
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player) SealManager.sync(player);
+        if (event.getEntity() instanceof ServerPlayer player) {
+            // Si el título de Oldest One se reseteó mientras estaba desconectado, se le quita
+            SealData data = SealCapability.get(player);
+            if (data.oldestOne() && !player.getUUID().equals(OldestOneData.get(player.server).holder())) {
+                data.setOldestOne(false);
+            }
+            SealManager.sync(player);
+        }
     }
 
     @SubscribeEvent

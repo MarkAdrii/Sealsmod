@@ -1,6 +1,8 @@
 package com.markadrii.seals.command;
 
 import com.markadrii.seals.Seals;
+import com.markadrii.seals.seal.AgeStage;
+import com.markadrii.seals.seal.OldestOneData;
 import com.markadrii.seals.seal.SealCapability;
 import com.markadrii.seals.seal.SealData;
 import com.markadrii.seals.seal.SealDefinition;
@@ -75,7 +77,7 @@ public final class SealCommands {
                                 .executes(ctx -> sealSelf(ctx, -1))
                                 .then(Commands.argument("targets", EntityArgument.players())
                                         .executes(ctx -> sealTargets(ctx, -1))
-                                        .then(Commands.argument("age", IntegerArgumentType.integer(0, 10000))
+                                        .then(Commands.argument("age", IntegerArgumentType.integer(0, AgeStage.MAX_YEARS))
                                                 .executes(ctx -> sealTargets(ctx, IntegerArgumentType.getInteger(ctx, "age")))))))
 
                 // /seals unseal [jugadores]
@@ -83,8 +85,8 @@ public final class SealCommands {
 
                 // /seals age set|add <años>
                 .then(Commands.literal("age")
-                        .then(withAmount("set", 0, 10000, SealCommands::ageSet))
-                        .then(withAmount("add", -10000, 10000, SealCommands::ageAdd)))
+                        .then(withAmount("set", 0, AgeStage.MAX_YEARS, SealCommands::ageSet))
+                        .then(withAmount("add", -AgeStage.MAX_YEARS, AgeStage.MAX_YEARS, SealCommands::ageAdd)))
 
                 // /seals affinity set|add <cantidad>
                 .then(Commands.literal("affinity")
@@ -95,6 +97,11 @@ public final class SealCommands {
                 .then(Commands.literal("stars")
                         .then(withAmount("set", 0, 100, SealCommands::starsSet))
                         .then(withAmount("add", -100, 100, SealCommands::starsAdd)))
+
+                // /seals oldestone [reset]
+                .then(Commands.literal("oldestone")
+                        .executes(ctx -> oldestOneInfo(ctx.getSource()))
+                        .then(Commands.literal("reset").executes(ctx -> oldestOneReset(ctx.getSource()))))
 
                 // /seals stability set <valor>
                 .then(Commands.literal("stability")
@@ -167,7 +174,7 @@ public final class SealCommands {
         SealDefinition def = data.definition();
         source.sendSuccess(() -> Component.translatable("command.seals.info", player.getDisplayName(), def.name(),
                 data.level() - 1, def.maxStars(), data.affinity(), data.stability(),
-                data.ageYears(), data.ageMonths() % 12).withStyle(ChatFormatting.GOLD), false);
+                data.ageYears(), data.ageMonths() % 12, data.ageStage().displayName()).withStyle(ChatFormatting.GOLD), false);
         return true;
     }
 
@@ -190,6 +197,7 @@ public final class SealCommands {
             if (data.definition() != null) data.definition().deactivateAll(player, data);
             int years = age >= 0 ? age : def.minAge() + player.getRandom().nextInt(def.maxAge() - def.minAge() + 1);
             data.seal(def.id(), years, SealManager.currentDay(player.server));
+            SealManager.checkOldestOne(player, data);
             SealManager.sync(player);
             player.sendSystemMessage(Component.translatable("message.seals.sealed", def.name(), years)
                     .withStyle(ChatFormatting.GOLD));
@@ -213,8 +221,10 @@ public final class SealCommands {
         SealData data = requireSeal(source, player);
         if (data == null) return false;
         data.setAgeMonths(years * 12);
+        SealManager.checkOldestOne(player, data);
         SealManager.sync(player);
-        ok(source, Component.translatable("command.seals.age", player.getDisplayName(), data.ageYears()));
+        ok(source, Component.translatable("command.seals.age", player.getDisplayName(), data.ageYears(),
+                data.ageStage().displayName()));
         return true;
     }
 
@@ -223,15 +233,13 @@ public final class SealCommands {
         SealData data = requireSeal(source, player);
         if (data == null) return false;
         if (years > 0) {
-            for (int i = 0; i < years; i++) {
-                data.setAgeMonths(data.ageMonths() + 12);
-                SealManager.addAffinity(player, data, 70, "affinity.seals.reason.birthday");
-            }
+            SealManager.addMonths(player, data, years * 12);
         } else {
             data.setAgeMonths(Math.max(0, data.ageMonths() + years * 12));
         }
         SealManager.sync(player);
-        ok(source, Component.translatable("command.seals.age", player.getDisplayName(), data.ageYears()));
+        ok(source, Component.translatable("command.seals.age", player.getDisplayName(), data.ageYears(),
+                data.ageStage().displayName()));
         return true;
     }
 
@@ -281,6 +289,33 @@ public final class SealCommands {
         SealManager.sync(player);
         ok(source, Component.translatable("command.seals.stars", player.getDisplayName(), newLevel - 1, def.maxStars()));
         return true;
+    }
+
+    private static int oldestOneInfo(CommandSourceStack source) {
+        OldestOneData world = OldestOneData.get(source.getServer());
+        if (!world.isTaken()) {
+            source.sendSuccess(() -> Component.translatable("command.seals.oldest_one.none")
+                    .withStyle(ChatFormatting.GRAY), false);
+            return 0;
+        }
+        source.sendSuccess(() -> Component.translatable("command.seals.oldest_one.holder", world.holderName(),
+                AgeStage.OLDEST_ONE.displayName()).withStyle(ChatFormatting.DARK_PURPLE), false);
+        return 1;
+    }
+
+    /** Libera el título para que otro jugador pueda conseguirlo (útil para pruebas). */
+    private static int oldestOneReset(CommandSourceStack source) {
+        OldestOneData world = OldestOneData.get(source.getServer());
+        if (world.holder() != null) {
+            ServerPlayer holder = source.getServer().getPlayerList().getPlayer(world.holder());
+            if (holder != null) {
+                SealCapability.get(holder).setOldestOne(false);
+                SealManager.sync(holder);
+            }
+        }
+        world.reset();
+        ok(source, Component.translatable("command.seals.oldest_one.reset"));
+        return 1;
     }
 
     private static boolean stabilitySet(CommandSourceStack source, ServerPlayer player, int value) {

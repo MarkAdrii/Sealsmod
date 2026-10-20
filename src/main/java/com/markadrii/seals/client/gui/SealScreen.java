@@ -2,6 +2,7 @@ package com.markadrii.seals.client.gui;
 
 import com.markadrii.seals.client.ClientSealData;
 import com.markadrii.seals.client.KeyBindings;
+import com.markadrii.seals.seal.AgeStage;
 import com.markadrii.seals.seal.SealAbility;
 import com.markadrii.seals.seal.SealData;
 import com.markadrii.seals.seal.SealDefinition;
@@ -182,10 +183,14 @@ public class SealScreen extends Screen {
                 data.stability() / 100F, stabColor, t);
         if (hover(mouseX, mouseY, x, y - 20, bw, 19)) info = Info.STABILITY;
 
-        // Edad
-        String age = Component.translatable("screen.seals.age_value", data.ageYears(), data.ageMonths() % 12).getString();
-        y = labeledBar(g, x, y, bw, Component.translatable("screen.seals.age"), age,
-                (data.ageMonths() % 12) / 12F, t.ageBar(), t);
+        // Edad y etapa (Joven, Adulto, Anciano...)
+        AgeStage stage = data.ageStage();
+        Component ageLabel = Component.translatable("screen.seals.age").append(" · ").append(stage.displayName());
+        String years = Component.translatable("screen.seals.age_years", data.ageYears()).getString();
+        g.drawString(font, ageLabel, x, y, t.text(), false);
+        g.drawString(font, years, x + bw - font.width(years), y, t.text(), false);
+        drawStageBar(g, x, y + 10, bw, data, t);
+        y += 20;
         if (hover(mouseX, mouseY, x, y - 20, bw, 19)) info = Info.AGE;
 
         // Estado
@@ -201,6 +206,32 @@ public class SealScreen extends Screen {
         g.drawString(font, value, x + bw - font.width(value), y, t.text(), false);
         GuiDraw.bar(g, x, y + 10, bw, 6, progress, color, t);
         return y + 20;
+    }
+
+    /** Etapas visibles: las 6 normales y, solo si eres el Oldest One, la oculta. */
+    private static List<AgeStage> visibleStages(SealData data) {
+        List<AgeStage> list = new ArrayList<>();
+        for (AgeStage s : AgeStage.values()) {
+            if (!s.hidden() || data.oldestOne()) list.add(s);
+        }
+        return list;
+    }
+
+    /** Barra dividida en etapas: las pasadas llenas, la actual según su progreso. */
+    private void drawStageBar(GuiGraphics g, int x, int y, int bw, SealData data, SealTheme t) {
+        List<AgeStage> stages = visibleStages(data);
+        AgeStage current = data.ageStage();
+        int currentIndex = stages.indexOf(current);
+        int n = stages.size();
+        int gap = 1;
+        int segW = (bw - gap * (n - 1)) / n;
+        for (int i = 0; i < n; i++) {
+            AgeStage s = stages.get(i);
+            int sx = x + i * (segW + gap);
+            int w = i == n - 1 ? bw - (sx - x) : segW;
+            float progress = i < currentIndex ? 1F : i == currentIndex ? s.progress(data.ageMonths()) : 0F;
+            GuiDraw.bar(g, sx, y, w, 6, progress, s.color(), t);
+        }
     }
 
     private Component phase(SealData data, SealDefinition def) {
@@ -227,6 +258,7 @@ public class SealScreen extends Screen {
 
         Component title;
         List<Component> paragraphs = new ArrayList<>();
+        List<Component> tight = new ArrayList<>(); // líneas sin espacio extra debajo
         String k = def.textKey();
         switch (info) {
             case STARS -> {
@@ -252,8 +284,16 @@ public class SealScreen extends Screen {
             case AGE -> {
                 title = Component.translatable("info.seals.age.title");
                 int bonus = Math.round((data.ageScale() - 1F) * 100F);
+                paragraphs.add(Component.translatable("info.seals.age.months", data.ageYears(), data.ageMonths() % 12,
+                        bonus));
+                AgeStage current = data.ageStage();
+                for (AgeStage s : visibleStages(data)) {
+                    Component line = Component.translatable("info.seals.age.stage", s.displayName(), s.minYears(), s.maxYears());
+                    if (s == current) line = line.copy().append(Component.translatable("info.seals.age.current"));
+                    paragraphs.add(line);
+                    tight.add(line);
+                }
                 paragraphs.add(Component.translatable("info.seals.age", def.minAge(), def.maxAge()));
-                paragraphs.add(Component.translatable("info.seals.age.bonus", data.ageYears(), bonus));
             }
             default -> {
                 title = Component.translatable("info.seals.bond.title");
@@ -272,7 +312,7 @@ public class SealScreen extends Screen {
                 g.drawString(font, line, x + 4, ty, t.text(), false);
                 ty += 9;
             }
-            ty += 3;
+            if (!tight.contains(p)) ty += 3;
         }
     }
 

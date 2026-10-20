@@ -19,6 +19,7 @@ public class SealData {
     private int ageMonths;         // edad del mob sellado en meses
     private long lastDay = -1;     // último día de Minecraft contado
     private int maxSlots = 1;      // huecos de sello desbloqueados (futuro: hasta 3)
+    private boolean oldestOne;     // rango oculto: primer jugador del mundo en llegar a 800 años
 
     // --- Habilidades ---
     private boolean manto;
@@ -46,7 +47,7 @@ public class SealData {
         this.lastDay = currentDay;
     }
 
-    /** Quita el sello y resetea todo menos los huecos desbloqueados. */
+    /** Quita el sello y resetea todo menos los huecos desbloqueados y el título de Oldest One. */
     public void clearSeal() {
         sealType = null;
         affinity = 0;
@@ -85,6 +86,7 @@ public class SealData {
         tag.putInt("ageMonths", ageMonths);
         tag.putLong("lastDay", lastDay);
         tag.putInt("maxSlots", maxSlots);
+        tag.putBoolean("oldestOne", oldestOne);
         tag.putBoolean("manto", manto);
         tag.putBoolean("golemForm", golemForm);
         tag.putInt("golemFormTicks", golemFormTicks);
@@ -103,6 +105,7 @@ public class SealData {
         ageMonths = tag.getInt("ageMonths");
         lastDay = tag.contains("lastDay") ? tag.getLong("lastDay") : -1;
         maxSlots = Math.max(1, tag.getInt("maxSlots"));
+        oldestOne = tag.getBoolean("oldestOne");
         manto = tag.getBoolean("manto");
         golemForm = tag.getBoolean("golemForm");
         golemFormTicks = tag.getInt("golemFormTicks");
@@ -121,7 +124,16 @@ public class SealData {
     public int stability() { return stability; }
     public void setStability(int stability) { this.stability = Math.max(0, Math.min(100, stability)); }
     public int ageMonths() { return ageMonths; }
-    public void setAgeMonths(int ageMonths) { this.ageMonths = ageMonths; }
+    public void setAgeMonths(int ageMonths) {
+        this.ageMonths = Math.max(0, Math.min(AgeStage.MAX_YEARS * 12, ageMonths));
+    }
+
+    public AgeStage ageStage() {
+        return AgeStage.of(ageYears(), oldestOne);
+    }
+
+    public boolean oldestOne() { return oldestOne; }
+    public void setOldestOne(boolean value) { this.oldestOne = value; }
     public long lastDay() { return lastDay; }
     public void setLastDay(long lastDay) { this.lastDay = lastDay; }
     public int maxSlots() { return maxSlots; }

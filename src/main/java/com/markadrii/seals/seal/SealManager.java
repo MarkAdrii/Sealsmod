@@ -175,14 +175,62 @@ public final class SealManager {
 
         int passed = (int) Math.min(today - data.lastDay(), 12 * 50); // tope por si alguien usa /time
         data.setLastDay(today);
-        for (int i = 0; i < passed; i++) {
+        addMonths(player, data, passed);
+    }
+
+    /**
+     * Envejece al mob sellado mes a mes (máximo 1000 años).
+     * Cada año cumplido da +70 de afinidad y avisa si cambia de etapa (Joven, Adulto, Anciano...).
+     */
+    public static void addMonths(ServerPlayer player, SealData data, int months) {
+        SealDefinition def = data.definition();
+        if (def == null || months <= 0) return;
+        int maxMonths = AgeStage.MAX_YEARS * 12;
+        for (int i = 0; i < months && data.ageMonths() < maxMonths; i++) {
+            AgeStage before = data.ageStage();
             data.setAgeMonths(data.ageMonths() + 1);
             if (data.ageMonths() % 12 == 0) {
                 player.sendSystemMessage(Component.translatable("message.seals.birthday", def.name(), data.ageYears())
                         .withStyle(ChatFormatting.GREEN));
                 addAffinity(player, data, 70, "affinity.seals.reason.birthday");
+                checkOldestOne(player, data);
+                AgeStage after = data.ageStage();
+                if (after != before && after != AgeStage.OLDEST_ONE) {
+                    player.sendSystemMessage(Component.translatable("message.seals.age_stage", def.name(),
+                            after.displayName()).withStyle(ChatFormatting.LIGHT_PURPLE));
+                    player.level().playSound(null, player.blockPosition(), SoundEvents.BEACON_POWER_SELECT,
+                            SoundSource.PLAYERS, 1.0F, 0.8F);
+                    fx(player, S2CFxPacket.Type.LEVEL_UP);
+                }
             }
         }
+        sync(player);
+    }
+
+    /**
+     * Rango oculto: el primer jugador del mundo cuyo mob sellado llegue a 800 años se convierte en el Oldest One.
+     * Se anuncia a todo el servidor. Nadie más puede conseguirlo después.
+     */
+    public static void checkOldestOne(ServerPlayer player, SealData data) {
+        SealDefinition def = data.definition();
+        if (def == null || data.oldestOne() || data.ageYears() < AgeStage.OLDEST_ONE_YEARS) return;
+        OldestOneData world = OldestOneData.get(player.server);
+        if (world.isTaken()) {
+            // Por si el título se reseteó y este jugador lo tenía: solo vale el del mundo
+            if (player.getUUID().equals(world.holder())) data.setOldestOne(true);
+            return;
+        }
+        world.claim(player.getUUID(), player.getGameProfile().getName());
+        data.setOldestOne(true);
+
+        player.server.getPlayerList().broadcastSystemMessage(Component.translatable("message.seals.oldest_one",
+                player.getDisplayName(), def.name(), AgeStage.OLDEST_ONE.displayName())
+                .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD), false);
+        for (ServerPlayer p : player.server.getPlayerList().getPlayers()) {
+            p.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.MASTER, 0.6F, 0.6F);
+        }
+        fx(player, S2CFxPacket.Type.LEVEL_UP);
+        fx(player, S2CFxPacket.Type.SEAL);
         sync(player);
     }
 
