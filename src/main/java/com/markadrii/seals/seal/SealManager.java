@@ -86,7 +86,8 @@ public final class SealManager {
         if (data.level() >= max && data.affinity() >= 100) return; // ya está al máximo
 
         int affinity = data.affinity() + amount;
-        int level = data.level();
+        final int oldLevel = data.level();
+        int level = oldLevel;
         boolean leveled = false;
         while (affinity >= 100 && level < max) {
             affinity -= 100;
@@ -106,8 +107,9 @@ public final class SealManager {
             int stars = level - 1;
             player.sendSystemMessage(Component.translatable("message.seals.level_up", def.name(), stars)
                     .withStyle(ChatFormatting.YELLOW));
+            final int newLevel = level;
             def.abilities().stream()
-                    .filter(a -> a.unlockLevel() == level)
+                    .filter(a -> a.unlockLevel() > oldLevel && a.unlockLevel() <= newLevel)
                     .forEach(a -> player.sendSystemMessage(Component.translatable("message.seals.ability_unlocked",
                             a.name()).withStyle(ChatFormatting.AQUA)));
             player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1.0F, 0.8F);
