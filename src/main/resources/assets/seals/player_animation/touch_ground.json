@@ -76,7 +76,7 @@
     "easing": "EASEINOUTQUAD",
     "turn": 0,
     "body": {
-     "y": -7
+     "y": -0.35
     }
    },
    {
@@ -136,7 +136,7 @@
     "easing": "EASEINOUTQUAD",
     "turn": 0,
     "body": {
-     "y": -7
+     "y": -0.38
     }
    },
    {

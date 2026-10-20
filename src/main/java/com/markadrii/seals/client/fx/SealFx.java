@@ -216,6 +216,43 @@ public final class SealFx {
     /** Niebla dorada y rayos de luz que salen de la puerta. */
     public static void innerAmbient(Level level, net.minecraft.core.BlockPos door, Player player) {
         RandomSource r = level.random;
+        double floorY = door.getY() - 10;
+
+        // Nubes doradas: grandes bolas de humo que flotan despacio por encima
+        for (int i = 0; i < 2; i++) {
+            double x = player.getX() + (r.nextDouble() - 0.5) * 70;
+            double z = player.getZ() + (r.nextDouble() - 0.5) * 70;
+            double y = floorY + 14 + r.nextDouble() * 10;
+            // cada nube es un pequeño grupo de bolas para que tenga forma
+            for (int j = 0; j < 3; j++) {
+                WorldParticleBuilder.create(LodestoneParticleRegistry.SMOKE_PARTICLE)
+                        .setScaleData(GenericParticleData.create(3.0F, 5.5F, 4.0F).build())
+                        .setTransparencyData(GenericParticleData.create(0F, 0.22F, 0F).build())
+                        .setColorData(color(GOLD, RUST))
+                        .setSpinData(SpinParticleData.createRandomDirection(r, 0.01F).build())
+                        .setLifetime(220 + r.nextInt(80))
+                        .setMotion(0.02 + r.nextDouble() * 0.01, 0, 0.005)
+                        .setFullBrightLighting()
+                        .enableNoClip()
+                        .spawn(level, x + (r.nextDouble() - 0.5) * 6, y + (r.nextDouble() - 0.5) * 2, z + (r.nextDouble() - 0.5) * 6);
+            }
+        }
+
+        // Niebla baja alrededor del jugador, a ras del agua
+        for (int i = 0; i < 2; i++) {
+            double x = player.getX() + (r.nextDouble() - 0.5) * 40;
+            double z = player.getZ() + (r.nextDouble() - 0.5) * 40;
+            WorldParticleBuilder.create(LodestoneParticleRegistry.SMOKE_PARTICLE)
+                    .setScaleData(GenericParticleData.create(2.0F, 3.5F).build())
+                    .setTransparencyData(GenericParticleData.create(0F, 0.10F, 0F).build())
+                    .setColorData(color(GOLD, IRON_DARK))
+                    .setLifetime(120 + r.nextInt(60))
+                    .setMotion((r.nextDouble() - 0.5) * 0.01, 0.001, (r.nextDouble() - 0.5) * 0.01)
+                    .setFullBrightLighting()
+                    .enableNoClip()
+                    .spawn(level, x, floorY + 0.3 + r.nextDouble() * 1.2, z);
+        }
+
         // Niebla baja sobre el agua, más densa cerca de la puerta
         for (int i = 0; i < 3; i++) {
             double x = door.getX() + (r.nextDouble() - 0.5) * 30;

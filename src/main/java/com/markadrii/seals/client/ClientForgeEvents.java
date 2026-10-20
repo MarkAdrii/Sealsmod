@@ -3,6 +3,7 @@ package com.markadrii.seals.client;
 import com.markadrii.seals.Seals;
 import com.markadrii.seals.client.fx.SealFx;
 import com.markadrii.seals.client.gui.SealScreen;
+import com.markadrii.seals.client.gui.SealScreenEffect;
 import com.markadrii.seals.network.C2SAbilityPacket;
 import com.markadrii.seals.network.C2SSealActionPacket;
 import com.markadrii.seals.world.InnerWorld;
@@ -58,22 +59,34 @@ public final class ClientForgeEvents {
 
     // --- Mundo interior: todo negro con niebla ------------------------------------------
 
+    /** Niebla: negra con un toque dorado, para que lo lejano se pierda en una bruma cálida. */
     @SubscribeEvent
     public static void onFogColor(ViewportEvent.ComputeFogColor event) {
         if (event.getCamera().getEntity().level().dimension() == InnerWorld.KEY) {
-            event.setRed(0.0F);
-            event.setGreen(0.0F);
-            event.setBlue(0.0F);
+            event.setRed(0.075F);
+            event.setGreen(0.052F);
+            event.setBlue(0.018F);
         }
     }
 
     @SubscribeEvent
     public static void onFog(ViewportEvent.RenderFog event) {
         if (event.getCamera().getEntity().level().dimension() == InnerWorld.KEY) {
-            event.setNearPlaneDistance(4.0F);
-            event.setFarPlaneDistance(80.0F);
+            event.setNearPlaneDistance(0.0F);
+            event.setFarPlaneDistance(64.0F);
             event.setCanceled(true);
         }
+    }
+
+    /** Temblor de cámara durante la animación demoníaca. */
+    @SubscribeEvent
+    public static void onCamera(ViewportEvent.ComputeCameraAngles event) {
+        float shake = SealScreenEffect.shake((float) event.getPartialTick());
+        if (shake <= 0) return;
+        float t = (float) (Minecraft.getInstance().level != null ? Minecraft.getInstance().level.getGameTime() + event.getPartialTick() : 0);
+        event.setRoll(event.getRoll() + (float) Math.sin(t * 2.7) * 4F * shake);
+        event.setPitch(event.getPitch() + (float) Math.cos(t * 3.3) * 2F * shake);
+        event.setYaw(event.getYaw() + (float) Math.sin(t * 2.1) * 2F * shake);
     }
 
     // --- Mini golem: shift + clic derecho en el aire con la mano vacía lo baja del hombro ---

@@ -2,6 +2,7 @@ package com.markadrii.seals.command;
 
 import com.markadrii.seals.Seals;
 import com.markadrii.seals.bond.BondManager;
+import com.markadrii.seals.network.S2CScreenEffectPacket;
 import com.markadrii.seals.seal.AgeStage;
 import com.markadrii.seals.world.InnerWorld;
 import com.markadrii.seals.seal.OldestOneData;
@@ -210,6 +211,7 @@ public final class SealCommands {
             data.seal(def.id(), years, SealManager.currentDay(player.server));
             SealManager.checkOldestOne(player, data);
             SealManager.sync(player);
+            SealManager.screenEffect(player, S2CScreenEffectPacket.Effect.SEAL);
             player.sendSystemMessage(Component.translatable("message.seals.sealed", def.name(), years)
                     .withStyle(ChatFormatting.GOLD));
             ok(src, Component.translatable("command.seals.sealed", player.getDisplayName(), def.name(), years));
@@ -227,6 +229,7 @@ public final class SealCommands {
         SealManager.onSealLost(player, data);
         data.clearSeal();
         SealManager.sync(player);
+        SealManager.screenEffect(player, S2CScreenEffectPacket.Effect.BREAK);
         ok(source, Component.translatable("command.seals.unsealed", player.getDisplayName(), name));
         return true;
     }

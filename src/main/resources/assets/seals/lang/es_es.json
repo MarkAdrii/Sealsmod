@@ -197,5 +197,7 @@
   "seal.seals.iron_golem.inner.break.ask": "¿Quieres romper el sello? Saldría al mundo contigo... y seguiríamos caminos distintos. ¿Estás seguro?",
   "seal.seals.iron_golem.inner.break.done": "Gracias por todo. Siempre protegeré tu aldea.",
   "seal.seals.iron_golem.inner.bye": "Vuelve pronto.",
-  "command.seals.cooldowns": "Esperas reiniciadas para %s (hablar, entrar, BOUND y habilidades)"
+  "command.seals.cooldowns": "Esperas reiniciadas para %s (hablar, entrar, BOUND y habilidades)",
+  "screen.seals.effect.seal": "¡SELLADO!",
+  "screen.seals.effect.break": "EL SELLO SE HA ROTO"
 }

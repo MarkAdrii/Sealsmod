@@ -197,5 +197,7 @@
   "seal.seals.iron_golem.inner.break.ask": "You want to break the seal? I would go out into the world with you... and we would go separate ways. Are you sure?",
   "seal.seals.iron_golem.inner.break.done": "Thank you for everything. I will always protect your village.",
   "seal.seals.iron_golem.inner.bye": "Come back soon.",
-  "command.seals.cooldowns": "Cooldowns reset for %s (talk, enter, BOUND and abilities)"
+  "command.seals.cooldowns": "Cooldowns reset for %s (talk, enter, BOUND and abilities)",
+  "screen.seals.effect.seal": "SEALED!",
+  "screen.seals.effect.break": "THE SEAL IS BROKEN"
 }

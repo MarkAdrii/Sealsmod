@@ -66,6 +66,12 @@ public final class SealManager {
         }
     }
 
+    /** Animación demoníaca a pantalla completa (solo la ve ese jugador). */
+    public static void screenEffect(ServerPlayer player, com.markadrii.seals.network.S2CScreenEffectPacket.Effect effect) {
+        ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player),
+                new com.markadrii.seals.network.S2CScreenEffectPacket(effect));
+    }
+
     public static void anim(ServerPlayer player, String animation) {
         ModNetwork.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),
                 new S2CAnimPacket(player.getId(), animation));
@@ -153,6 +159,7 @@ public final class SealManager {
         player.sendSystemMessage(Component.translatable("message.seals.seal_broken", def.name())
                 .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
         fx(player, S2CFxPacket.Type.SEAL_BREAK);
+        screenEffect(player, com.markadrii.seals.network.S2CScreenEffectPacket.Effect.BREAK);
         def.onSealBroken(player, data);
         onSealLost(player, data);
         data.clearSeal();

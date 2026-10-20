@@ -63,6 +63,7 @@ public class SealingScrollItem extends Item {
         level.playSound(null, target.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1.2F, 0.6F);
         level.playSound(null, target.blockPosition(), SoundEvents.CONDUIT_ACTIVATE, SoundSource.PLAYERS, 1.0F, 0.8F);
         target.discard();
+        SealManager.screenEffect(serverPlayer, com.markadrii.seals.network.S2CScreenEffectPacket.Effect.SEAL);
 
         if (!serverPlayer.getAbilities().instabuild) stack.shrink(1);
 

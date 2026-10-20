@@ -575,7 +575,11 @@ public class SealScreen extends Screen {
                         ModNetwork.CHANNEL.sendToServer(new C2SSealActionPacket(C2SSealActionPacket.Action.ENTER));
                         onClose();
                     }
-                    case "mini" -> ModNetwork.CHANNEL.sendToServer(new C2SSealActionPacket(C2SSealActionPacket.Action.TOGGLE_MINI));
+                    case "mini" -> {
+                        boolean summoning = !ClientSealData.get().miniOut();
+                        ModNetwork.CHANNEL.sendToServer(new C2SSealActionPacket(C2SSealActionPacket.Action.TOGGLE_MINI));
+                        if (summoning) onClose(); // se cierra para ver la animación
+                    }
                     default -> {}
                 }
                 return true;

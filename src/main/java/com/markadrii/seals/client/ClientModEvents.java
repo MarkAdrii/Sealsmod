@@ -3,6 +3,7 @@ package com.markadrii.seals.client;
 import com.markadrii.seals.Seals;
 import com.markadrii.seals.client.anim.SealAnimations;
 import com.markadrii.seals.client.gui.CombatHud;
+import com.markadrii.seals.client.gui.SealScreenEffect;
 import com.markadrii.seals.client.render.HolyGolemRenderer;
 import com.markadrii.seals.client.render.MantoLayer;
 import com.markadrii.seals.client.render.ScaledGolemRenderer;
@@ -68,5 +69,6 @@ public final class ClientModEvents {
     @SubscribeEvent
     public static void registerOverlays(RegisterGuiOverlaysEvent event) {
         event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "combat_bar", CombatHud.OVERLAY);
+        event.registerAboveAll("seal_effect", SealScreenEffect.OVERLAY);
     }
 }
