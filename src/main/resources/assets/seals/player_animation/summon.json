@@ -1,0 +1,236 @@
+{
+ "version": 3,
+ "name": "summon",
+ "author": "Seals",
+ "description": "Invocar al Holy golem",
+ "emote": {
+  "isLoop": "false",
+  "returnTick": 30,
+  "beginTick": 0,
+  "endTick": 26,
+  "stopTick": 30,
+  "degrees": false,
+  "moves": [
+   {
+    "tick": 0,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "rightArm": {
+     "pitch": 0.0,
+     "yaw": 0.0,
+     "roll": 0.0
+    }
+   },
+   {
+    "tick": 0,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "leftArm": {
+     "pitch": 0.0,
+     "yaw": 0.0,
+     "roll": 0.0
+    }
+   },
+   {
+    "tick": 0,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "torso": {
+     "pitch": 0.0
+    }
+   },
+   {
+    "tick": 0,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "head": {
+     "pitch": 0.0
+    }
+   },
+   {
+    "tick": 0,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "body": {
+     "y": 0
+    }
+   },
+   {
+    "tick": 8,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "rightArm": {
+     "pitch": -2.9670597283903604,
+     "yaw": 0.0,
+     "roll": 0.0
+    }
+   },
+   {
+    "tick": 8,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "leftArm": {
+     "pitch": 0.0,
+     "yaw": 0.0,
+     "roll": -0.2617993877991494
+    }
+   },
+   {
+    "tick": 8,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "head": {
+     "pitch": -0.5235987755982988
+    }
+   },
+   {
+    "tick": 8,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "torso": {
+     "pitch": -0.08726646259971647
+    }
+   },
+   {
+    "tick": 8,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "body": {
+     "y": 0
+    }
+   },
+   {
+    "tick": 16,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "rightArm": {
+     "pitch": -3.0543261909900767,
+     "yaw": 0.0,
+     "roll": 0.0
+    }
+   },
+   {
+    "tick": 16,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "leftArm": {
+     "pitch": 0.0,
+     "yaw": 0.0,
+     "roll": -0.2617993877991494
+    }
+   },
+   {
+    "tick": 16,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "head": {
+     "pitch": -0.6108652381980153
+    }
+   },
+   {
+    "tick": 16,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "torso": {
+     "pitch": -0.08726646259971647
+    }
+   },
+   {
+    "tick": 16,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "body": {
+     "y": 0
+    }
+   },
+   {
+    "tick": 22,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "rightArm": {
+     "pitch": -1.5707963267948966,
+     "yaw": 0.0,
+     "roll": 0.0
+    }
+   },
+   {
+    "tick": 22,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "leftArm": {
+     "pitch": 0.0,
+     "yaw": 0.0,
+     "roll": -0.08726646259971647
+    }
+   },
+   {
+    "tick": 22,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "head": {
+     "pitch": 0.08726646259971647
+    }
+   },
+   {
+    "tick": 22,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "torso": {
+     "pitch": 0.08726646259971647
+    }
+   },
+   {
+    "tick": 22,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "body": {
+     "y": 0
+    }
+   },
+   {
+    "tick": 30,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "rightArm": {
+     "pitch": 0.0,
+     "yaw": 0.0,
+     "roll": 0.0
+    }
+   },
+   {
+    "tick": 30,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "leftArm": {
+     "pitch": 0.0,
+     "yaw": 0.0,
+     "roll": 0.0
+    }
+   },
+   {
+    "tick": 30,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "torso": {
+     "pitch": 0.0
+    }
+   },
+   {
+    "tick": 30,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "head": {
+     "pitch": 0.0
+    }
+   },
+   {
+    "tick": 30,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "body": {
+     "y": 0
+    }
+   }
+  ]
+ }
+}

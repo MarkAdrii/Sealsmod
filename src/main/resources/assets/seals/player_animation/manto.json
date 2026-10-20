@@ -1,0 +1,236 @@
+{
+ "version": 3,
+ "name": "manto",
+ "author": "Seals",
+ "description": "Activar el manto ferruquimico",
+ "emote": {
+  "isLoop": "false",
+  "returnTick": 26,
+  "beginTick": 0,
+  "endTick": 22,
+  "stopTick": 26,
+  "degrees": false,
+  "moves": [
+   {
+    "tick": 0,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "rightArm": {
+     "pitch": 0.0,
+     "yaw": 0.0,
+     "roll": 0.0
+    }
+   },
+   {
+    "tick": 0,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "leftArm": {
+     "pitch": 0.0,
+     "yaw": 0.0,
+     "roll": 0.0
+    }
+   },
+   {
+    "tick": 0,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "torso": {
+     "pitch": 0.0
+    }
+   },
+   {
+    "tick": 0,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "head": {
+     "pitch": 0.0
+    }
+   },
+   {
+    "tick": 0,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "body": {
+     "y": 0
+    }
+   },
+   {
+    "tick": 6,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "rightArm": {
+     "pitch": -1.2217304763960306,
+     "yaw": -0.3490658503988659,
+     "roll": 0.0
+    }
+   },
+   {
+    "tick": 6,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "leftArm": {
+     "pitch": -1.2217304763960306,
+     "yaw": 0.3490658503988659,
+     "roll": 0.0
+    }
+   },
+   {
+    "tick": 6,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "head": {
+     "pitch": 0.5235987755982988
+    }
+   },
+   {
+    "tick": 6,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "torso": {
+     "pitch": 0.0
+    }
+   },
+   {
+    "tick": 6,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "body": {
+     "y": 0
+    }
+   },
+   {
+    "tick": 14,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "rightArm": {
+     "pitch": -1.3962634015954636,
+     "yaw": -0.5235987755982988,
+     "roll": 0.0
+    }
+   },
+   {
+    "tick": 14,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "leftArm": {
+     "pitch": -1.3962634015954636,
+     "yaw": 0.5235987755982988,
+     "roll": 0.0
+    }
+   },
+   {
+    "tick": 14,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "head": {
+     "pitch": 0.4363323129985824
+    }
+   },
+   {
+    "tick": 14,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "torso": {
+     "pitch": 0.0
+    }
+   },
+   {
+    "tick": 14,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "body": {
+     "y": 0
+    }
+   },
+   {
+    "tick": 20,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "rightArm": {
+     "pitch": -0.17453292519943295,
+     "yaw": 0.0,
+     "roll": 0.4363323129985824
+    }
+   },
+   {
+    "tick": 20,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "leftArm": {
+     "pitch": -0.17453292519943295,
+     "yaw": 0.0,
+     "roll": -0.4363323129985824
+    }
+   },
+   {
+    "tick": 20,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "head": {
+     "pitch": -0.08726646259971647
+    }
+   },
+   {
+    "tick": 20,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "torso": {
+     "pitch": 0.0
+    }
+   },
+   {
+    "tick": 20,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "body": {
+     "y": 0
+    }
+   },
+   {
+    "tick": 26,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "rightArm": {
+     "pitch": 0.0,
+     "yaw": 0.0,
+     "roll": 0.0
+    }
+   },
+   {
+    "tick": 26,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "leftArm": {
+     "pitch": 0.0,
+     "yaw": 0.0,
+     "roll": 0.0
+    }
+   },
+   {
+    "tick": 26,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "torso": {
+     "pitch": 0.0
+    }
+   },
+   {
+    "tick": 26,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "head": {
+     "pitch": 0.0
+    }
+   },
+   {
+    "tick": 26,
+    "easing": "EASEINOUTQUAD",
+    "turn": 0,
+    "body": {
+     "y": 0
+    }
+   }
+  ]
+ }
+}
