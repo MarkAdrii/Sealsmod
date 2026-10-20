@@ -38,6 +38,9 @@ jobs:
             echo "::error file=$file,line=$num::$msg"
           done
           # Errores de Gradle ("What went wrong")
+          grep -iE "deobf|mapped_official|Exception" build.log | grep -v "^\s*at " | head -15 | while IFS= read -r line; do
+            echo "::error title=detalle::$line"
+          done
           awk '/What went wrong/{f=1;n=0} f{print; n++} n>12{f=0}' build.log | head -60 | while IFS= read -r line; do
             [ -n "$line" ] && echo "::error title=gradle::$line"
           done
