@@ -6,7 +6,6 @@ import net.minecraft.client.model.IronGolemModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.client.renderer.entity.layers.IronGolemCrackinessLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.IronGolem;
 
@@ -18,7 +17,6 @@ public class ScaledGolemRenderer<T extends IronGolem> extends MobRenderer<T, Iro
     public ScaledGolemRenderer(EntityRendererProvider.Context context, float scale) {
         super(context, new IronGolemModel<>(context.bakeLayer(ModelLayers.IRON_GOLEM)), 0.7F * scale);
         this.scale = scale;
-        addLayer(new IronGolemCrackinessLayer<>(this));
     }
 
     @Override
