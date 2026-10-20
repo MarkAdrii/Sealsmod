@@ -194,7 +194,10 @@ public final class SealCommands {
 
         return apply(ctx.getSource(), players, (src, player) -> {
             SealData data = SealCapability.get(player);
-            if (data.definition() != null) data.definition().deactivateAll(player, data);
+            if (data.definition() != null) {
+                data.definition().deactivateAll(player, data);
+                SealManager.onSealLost(player, data);
+            }
             int years = age >= 0 ? age : def.minAge() + player.getRandom().nextInt(def.maxAge() - def.minAge() + 1);
             data.seal(def.id(), years, SealManager.currentDay(player.server));
             SealManager.checkOldestOne(player, data);
@@ -211,6 +214,7 @@ public final class SealCommands {
         if (data == null) return false;
         Component name = data.definition().name();
         data.definition().deactivateAll(player, data);
+        SealManager.onSealLost(player, data);
         data.clearSeal();
         SealManager.sync(player);
         ok(source, Component.translatable("command.seals.unsealed", player.getDisplayName(), name));

@@ -118,5 +118,7 @@
   "info.seals.age.current": " ◀",
   "command.seals.oldest_one.none": "Nadie ha conseguido todavía el rango oculto",
   "command.seals.oldest_one.holder": "%s es el %s de este mundo",
-  "command.seals.oldest_one.reset": "El rango oculto vuelve a estar libre"
+  "command.seals.oldest_one.reset": "El rango oculto vuelve a estar libre",
+  "message.seals.oldest_one.inherited": "%s hereda el título de %s tras perder %s su mob sellado",
+  "message.seals.oldest_one.lost": "%s ha perdido su mob sellado. El título de %s queda libre para el próximo que llegue a 800 años"
 }

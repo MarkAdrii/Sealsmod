@@ -34,6 +34,7 @@ public final class SealManager {
 
     public static void sync(ServerPlayer player) {
         SealData data = SealCapability.get(player);
+        updateRecord(player, data);
         ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new S2CSyncSealPacket(data.save()));
         syncVisual(player);
     }
@@ -150,6 +151,7 @@ public final class SealManager {
                 .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
         fx(player, S2CFxPacket.Type.SEAL_BREAK);
         def.onSealBroken(player, data);
+        onSealLost(player, data);
         data.clearSeal();
         sync(player);
     }
@@ -232,6 +234,64 @@ public final class SealManager {
         fx(player, S2CFxPacket.Type.LEVEL_UP);
         fx(player, S2CFxPacket.Type.SEAL);
         sync(player);
+    }
+
+    /** Guarda en el mundo la edad del mob sellado de este jugador (para heredar el título). */
+    public static void updateRecord(ServerPlayer player, SealData data) {
+        OldestOneData world = OldestOneData.get(player.server);
+        if (data.hasSeal()) {
+            world.setRecord(player.getUUID(), player.getGameProfile().getName(), data.ageMonths());
+        } else {
+            world.removeRecord(player.getUUID());
+        }
+    }
+
+    /**
+     * El jugador pierde su mob sellado (sello roto, quitado o sustituido).
+     * Llamar ANTES de {@link SealData#clearSeal()}. Si era el Oldest One, el título pasa al siguiente.
+     */
+    public static void onSealLost(ServerPlayer player, SealData data) {
+        OldestOneData world = OldestOneData.get(player.server);
+        world.removeRecord(player.getUUID());
+        boolean wasHolder = data.oldestOne() || player.getUUID().equals(world.holder());
+        data.setOldestOne(false);
+        if (wasHolder) transferOldestOne(player.server, player.getUUID(), player.getDisplayName());
+    }
+
+    /**
+     * Pasa el título de Oldest One al jugador con el mob sellado más antiguo (800 años o más).
+     * Si nadie llega a 800, el título queda libre para el siguiente que llegue.
+     */
+    public static void transferOldestOne(MinecraftServer server, UUID formerHolder, Component formerName) {
+        OldestOneData world = OldestOneData.get(server);
+        // Datos al día de los jugadores conectados
+        for (ServerPlayer p : server.getPlayerList().getPlayers()) {
+            if (!p.getUUID().equals(formerHolder)) updateRecord(p, SealCapability.get(p));
+        }
+
+        var heir = world.oldest(AgeStage.OLDEST_ONE_YEARS * 12, formerHolder);
+        if (heir == null) {
+            world.reset();
+            server.getPlayerList().broadcastSystemMessage(Component.translatable("message.seals.oldest_one.lost",
+                    formerName, AgeStage.OLDEST_ONE.displayName()).withStyle(ChatFormatting.DARK_PURPLE), false);
+            return;
+        }
+
+        world.claim(heir.getKey(), heir.getValue().name());
+        server.getPlayerList().broadcastSystemMessage(Component.translatable("message.seals.oldest_one.inherited",
+                heir.getValue().name(), AgeStage.OLDEST_ONE.displayName(), formerName)
+                .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD), false);
+        for (ServerPlayer p : server.getPlayerList().getPlayers()) {
+            p.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.MASTER, 0.5F, 0.8F);
+        }
+
+        // Si el heredero está conectado se le da ya; si no, al entrar
+        ServerPlayer online = server.getPlayerList().getPlayer(heir.getKey());
+        if (online != null) {
+            SealCapability.get(online).setOldestOne(true);
+            fx(online, S2CFxPacket.Type.LEVEL_UP);
+            sync(online);
+        }
     }
 
     // ---------------------------------------------------------------------------------------

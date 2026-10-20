@@ -118,5 +118,7 @@
   "info.seals.age.current": " ◀",
   "command.seals.oldest_one.none": "Nobody has claimed the hidden rank yet",
   "command.seals.oldest_one.holder": "%s is the %s of this world",
-  "command.seals.oldest_one.reset": "The hidden rank is free again"
+  "command.seals.oldest_one.reset": "The hidden rank is free again",
+  "message.seals.oldest_one.inherited": "%s inherits the title of %s after %s lost their sealed mob",
+  "message.seals.oldest_one.lost": "%s has lost their sealed mob. The title of %s is free for the next one to reach 800 years"
 }

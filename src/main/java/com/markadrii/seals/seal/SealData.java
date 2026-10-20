@@ -47,7 +47,7 @@ public class SealData {
         this.lastDay = currentDay;
     }
 
-    /** Quita el sello y resetea todo menos los huecos desbloqueados y el título de Oldest One. */
+    /** Quita el sello y resetea todo menos los huecos desbloqueados (el título se gestiona en SealManager.onSealLost). */
     public void clearSeal() {
         sealType = null;
         affinity = 0;

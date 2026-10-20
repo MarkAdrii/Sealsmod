@@ -136,10 +136,10 @@ public final class SealEvents {
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             // Si el título de Oldest One se reseteó mientras estaba desconectado, se le quita
+            // El título de Oldest One manda el mundo: se quita si se reseteó y se da si lo heredó desconectado
             SealData data = SealCapability.get(player);
-            if (data.oldestOne() && !player.getUUID().equals(OldestOneData.get(player.server).holder())) {
-                data.setOldestOne(false);
-            }
+            boolean holder = player.getUUID().equals(OldestOneData.get(player.server).holder());
+            data.setOldestOne(holder && data.hasSeal());
             SealManager.sync(player);
         }
     }
