@@ -7,17 +7,15 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-/** Servidor → clientes cercanos: si un jugador lleva el manto, la forma de golem o el mini golem en el hombro. */
-public record S2CVisualPacket(int entityId, boolean manto, boolean golemForm, boolean shoulder) {
+/** Servidor → clientes cercanos: estado visual de un jugador (bits de SealVisuals). */
+public record S2CVisualPacket(int entityId, int flags) {
     public static void encode(S2CVisualPacket msg, FriendlyByteBuf buf) {
         buf.writeVarInt(msg.entityId);
-        buf.writeBoolean(msg.manto);
-        buf.writeBoolean(msg.golemForm);
-        buf.writeBoolean(msg.shoulder);
+        buf.writeVarInt(msg.flags);
     }
 
     public static S2CVisualPacket decode(FriendlyByteBuf buf) {
-        return new S2CVisualPacket(buf.readVarInt(), buf.readBoolean(), buf.readBoolean(), buf.readBoolean());
+        return new S2CVisualPacket(buf.readVarInt(), buf.readVarInt());
     }
 
     public static void handle(S2CVisualPacket msg, Supplier<NetworkEvent.Context> ctx) {

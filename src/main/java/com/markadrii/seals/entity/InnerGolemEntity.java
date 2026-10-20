@@ -24,7 +24,7 @@ import java.util.UUID;
  * El Iron Golem sellado, tal como aparece en el mundo interior: grande, tranquilo y con quien se puede hablar.
  * Solo se le puede hacer daño durante una pelea, y nunca muere: al bajar al 15% de vida, la pelea acaba.
  */
-public class InnerGolemEntity extends IronGolem {
+public class InnerGolemEntity extends IronGolem implements InnerMob {
     public static final float RENDER_SCALE = 1.6F;
 
     @Nullable private UUID ownerId;
@@ -47,7 +47,8 @@ public class InnerGolemEntity extends IronGolem {
                 .add(Attributes.FOLLOW_RANGE, 48.0);
     }
 
-    public void setup(Player owner, Vec3 home, double health, double attack) {
+    @Override
+    public void setupInner(Player owner, Vec3 home, double health, double attack) {
         this.ownerId = owner.getUUID();
         this.home = home;
         var hp = getAttribute(Attributes.MAX_HEALTH);
@@ -57,6 +58,7 @@ public class InnerGolemEntity extends IronGolem {
         setHealth(getMaxHealth());
     }
 
+    @Override
     @Nullable
     public UUID getOwnerId() {
         return ownerId;
@@ -75,16 +77,19 @@ public class InnerGolemEntity extends IronGolem {
 
     // --- Pelea ---------------------------------------------------------------------------
 
+    @Override
     public boolean isFighting() {
         return fighting;
     }
 
+    @Override
     public void startFight(Player target) {
         fighting = true;
         setHealth(getMaxHealth());
         setTarget(target);
     }
 
+    @Override
     public void stopFight() {
         fighting = false;
         setTarget(null);

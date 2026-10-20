@@ -114,6 +114,42 @@ public abstract class SealDefinition {
     public double innerHealth() { return 150.0; }
     public double innerAttack() { return 10.0; }
 
+    /** Crea al mob para el mundo interior (debe implementar InnerMob). */
+    @org.jetbrains.annotations.Nullable
+    public net.minecraft.world.entity.Mob createInnerMob(net.minecraft.server.level.ServerLevel level) {
+        return null;
+    }
+
+    /** Nivel necesario para pelear en el mundo interior (-1 = no se puede). */
+    public int fightLevel() {
+        return -1;
+    }
+
+    /** Nivel necesario para BOUND (fortalecer el vínculo). */
+    public int bondLevel() {
+        return maxLevel();
+    }
+
+    /**
+     * Comprueba si el jugador puede sellar a este mob ahora mismo.
+     * @return null si se puede, o el mensaje que explica por qué no
+     */
+    @org.jetbrains.annotations.Nullable
+    public Component sealProblem(ServerPlayer player, LivingEntity target) {
+        if (!canSeal(target)) {
+            return Component.translatable("message.seals.too_strong", name(), Math.round(sealHealthThreshold() * 100));
+        }
+        return null;
+    }
+
+    /** El jugador ha terminado de comer o beber algo. */
+    public void onEat(ServerPlayer player, SealData data, net.minecraft.world.item.ItemStack stack) {}
+
+    /** Bits de {@link SealVisuals} que deben ver los demás jugadores. */
+    public int visualFlags(SealData data) {
+        return 0;
+    }
+
     /** Nivel necesario para invocar su versión mini (-1 = no tiene). */
     public int miniUnlockLevel() {
         return -1;

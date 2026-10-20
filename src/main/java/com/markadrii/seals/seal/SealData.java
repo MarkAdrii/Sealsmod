@@ -30,6 +30,12 @@ public class SealData {
     private int holyCooldown;
     private int abilityUseTicks;
 
+    // --- Habilidades del lobo ---
+    private boolean instinct;          // Instinto primal
+    private boolean werewolf;          // Hombre lobo
+    private int werewolfTicks;
+    private int werewolfCooldown;
+
     // --- Vínculo (hablar, mundo interior, boost) ---
     private long lastTalkDay = -100;
     private long lastEnterDay = -100;
@@ -82,6 +88,10 @@ public class SealData {
         holyGolem = null;
         holyCooldown = 0;
         abilityUseTicks = 0;
+        instinct = false;
+        werewolf = false;
+        werewolfTicks = 0;
+        werewolfCooldown = 0;
         lastTalkDay = -100;
         lastEnterDay = -100;
         lastBondDay = -100;
@@ -124,6 +134,10 @@ public class SealData {
         if (holyGolem != null) tag.putUUID("holyGolem", holyGolem);
         tag.putInt("holyCooldown", holyCooldown);
         tag.putInt("abilityUseTicks", abilityUseTicks);
+        tag.putBoolean("instinct", instinct);
+        tag.putBoolean("werewolf", werewolf);
+        tag.putInt("werewolfTicks", werewolfTicks);
+        tag.putInt("werewolfCooldown", werewolfCooldown);
         tag.putLong("lastTalkDay", lastTalkDay);
         tag.putLong("lastEnterDay", lastEnterDay);
         tag.putLong("lastBondDay", lastBondDay);
@@ -159,6 +173,10 @@ public class SealData {
         holyGolem = tag.hasUUID("holyGolem") ? tag.getUUID("holyGolem") : null;
         holyCooldown = tag.getInt("holyCooldown");
         abilityUseTicks = tag.getInt("abilityUseTicks");
+        instinct = tag.getBoolean("instinct");
+        werewolf = tag.getBoolean("werewolf");
+        werewolfTicks = tag.getInt("werewolfTicks");
+        werewolfCooldown = tag.getInt("werewolfCooldown");
         lastTalkDay = tag.contains("lastTalkDay") ? tag.getLong("lastTalkDay") : -100;
         lastEnterDay = tag.contains("lastEnterDay") ? tag.getLong("lastEnterDay") : -100;
         lastBondDay = tag.contains("lastBondDay") ? tag.getLong("lastBondDay") : -100;
@@ -213,6 +231,15 @@ public class SealData {
     public void setHolyCooldown(int t) { this.holyCooldown = t; }
     public int abilityUseTicks() { return abilityUseTicks; }
     public void setAbilityUseTicks(int t) { this.abilityUseTicks = t; }
+
+    public boolean instinct() { return instinct; }
+    public void setInstinct(boolean v) { this.instinct = v; }
+    public boolean werewolf() { return werewolf; }
+    public void setWerewolf(boolean v) { this.werewolf = v; }
+    public int werewolfTicks() { return werewolfTicks; }
+    public void setWerewolfTicks(int t) { this.werewolfTicks = t; }
+    public int werewolfCooldown() { return werewolfCooldown; }
+    public void setWerewolfCooldown(int t) { this.werewolfCooldown = t; }
 
     public long lastTalkDay() { return lastTalkDay; }
     public void setLastTalkDay(long d) { this.lastTalkDay = d; }

@@ -25,7 +25,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Pergamino de sello: clic derecho sobre un mob debilitado (25% de vida o menos) para sellarlo dentro de ti.
+ * Pergamino de sello: clic derecho sobre un mob para sellarlo dentro de ti.
+ * Cada mob pone sus condiciones (el golem tiene que estar debilitado, el lobo tiene que ser tuyo...).
  */
 public class SealingScrollItem extends Item {
 
@@ -48,9 +49,9 @@ public class SealingScrollItem extends Item {
                     data.definition() != null ? data.definition().name() : Component.literal("?")));
             return InteractionResult.FAIL;
         }
-        if (!def.canSeal(target)) {
-            fail(serverPlayer, Component.translatable("message.seals.too_strong", def.name(),
-                    Math.round(def.sealHealthThreshold() * 100)));
+        Component problem = def.sealProblem(serverPlayer, target);
+        if (problem != null) {
+            fail(serverPlayer, problem);
             return InteractionResult.FAIL;
         }
 

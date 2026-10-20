@@ -17,7 +17,7 @@ public final class ClientPacketHandler {
     }
 
     public static void visual(S2CVisualPacket msg) {
-        SealVisuals.setClient(msg.entityId(), msg.manto(), msg.golemForm(), msg.shoulder());
+        SealVisuals.setClient(msg.entityId(), msg.flags());
         if (Minecraft.getInstance().level != null) {
             Entity entity = Minecraft.getInstance().level.getEntity(msg.entityId());
             if (entity != null) entity.refreshDimensions();

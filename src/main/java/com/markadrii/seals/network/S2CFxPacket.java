@@ -25,7 +25,10 @@ public record S2CFxPacket(Type type, double x, double y, double z, int entityId)
         DOOR_DUST,     // la puerta del mundo interior se abre
         TOUCH_GROUND,  // el jugador toca el suelo para invocar al mini golem
         BOND,          // se fortalece el vínculo (BOUND)
-        RELEASE        // el sello se rompe en paz
+        RELEASE,       // el sello se rompe en paz
+        INSTINCT,      // lobo: se activa el instinto primal
+        WEREWOLF,      // lobo: transformación en hombre lobo
+        CLAW           // lobo: zarpazo
     }
 
     public static void encode(S2CFxPacket msg, FriendlyByteBuf buf) {

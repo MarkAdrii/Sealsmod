@@ -44,14 +44,14 @@ public final class SealManager {
     public static void syncVisual(ServerPlayer player) {
         SealData data = SealCapability.get(player);
         ModNetwork.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),
-                new S2CVisualPacket(player.getId(), data.manto(), data.golemForm(), data.miniOut() && data.miniOnShoulder()));
+                new S2CVisualPacket(player.getId(), SealVisuals.flags(data)));
         player.refreshDimensions();
     }
 
     public static void syncVisualTo(ServerPlayer target, ServerPlayer viewer) {
         SealData data = SealCapability.get(target);
         ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> viewer),
-                new S2CVisualPacket(target.getId(), data.manto(), data.golemForm(), data.miniOut() && data.miniOnShoulder()));
+                new S2CVisualPacket(target.getId(), SealVisuals.flags(data)));
     }
 
     public static void fx(ServerLevel level, S2CFxPacket.Type type, double x, double y, double z, int entityId) {

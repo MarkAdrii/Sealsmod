@@ -187,6 +187,19 @@ public class IronGolemSeal extends SealDefinition {
     public static final double MINI_ATTACK = 6.0;
 
     @Override public int talkLines() { return 10; }
+    @Override public int fightLevel() { return 3; }
+    @Override public int bondLevel() { return 4; }
+
+    @Override
+    public net.minecraft.world.entity.Mob createInnerMob(ServerLevel level) {
+        return ModEntities.INNER_GOLEM.get().create(level);
+    }
+
+    @Override
+    public int visualFlags(SealData data) {
+        return (data.manto() ? com.markadrii.seals.seal.SealVisuals.MANTO : 0)
+                | (data.golemForm() ? com.markadrii.seals.seal.SealVisuals.GOLEM_FORM : 0);
+    }
     @Override public float likeChance() { return 0.9F; }
 
     /** A un golem lo reparan los lingotes de hierro: es lo más parecido a su comida favorita. */

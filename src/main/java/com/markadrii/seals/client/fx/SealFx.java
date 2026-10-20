@@ -29,6 +29,9 @@ public final class SealFx {
     private static final float[] HOLY_LIGHT = {0.80F, 0.93F, 1.00F};
     private static final float[] GOLD = {1.00F, 0.84F, 0.30F};
     private static final float[] WHITE = {1.00F, 1.00F, 1.00F};
+    private static final float[] BLOOD = {0.85F, 0.05F, 0.05F};
+    private static final float[] EMBER = {1.00F, 0.25F, 0.10F};
+    private static final float[] FUR = {0.30F, 0.27F, 0.24F};
 
     private SealFx() {}
 
@@ -54,6 +57,9 @@ public final class SealFx {
             case TOUCH_GROUND -> touchGround(level, pos);
             case BOND -> bond(level, pos);
             case RELEASE -> release(level, pos);
+            case INSTINCT -> instinct(level, pos);
+            case WEREWOLF -> werewolf(level, pos);
+            case CLAW -> claw(level, pos, entity);
         }
     }
 
@@ -207,6 +213,62 @@ public final class SealFx {
     private static void release(Level level, Vec3 pos) {
         burst(level, pos.add(0, 1, 0), LodestoneParticleRegistry.WISP_PARTICLE, GOLD, WHITE, 0.4F, 40, 0.06, 1.0, 40);
         burst(level, pos.add(0, 1, 0), LodestoneParticleRegistry.SPARKLE_PARTICLE, POPPY, GOLD, 0.25F, 40, 0.08, 1.2, 30);
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // Lobo
+    // ---------------------------------------------------------------------------------------
+
+    /** Instinto primal: un latido rojo que se expande. */
+    private static void instinct(Level level, Vec3 pos) {
+        ring(level, pos.add(0, 0.1, 0), LodestoneParticleRegistry.WISP_PARTICLE, BLOOD, EMBER, 3.0, 40, 0.2F);
+        ring(level, pos.add(0, 1.0, 0), LodestoneParticleRegistry.WISP_PARTICLE, EMBER, BLOOD, 2.2, 30, 0.12F);
+    }
+
+    /** Transformación en hombre lobo: humo oscuro, chispas rojas y pelo que sale volando. */
+    private static void werewolf(Level level, Vec3 pos) {
+        Vec3 c = pos.add(0, 1.1, 0);
+        burst(level, c, LodestoneParticleRegistry.SMOKE_PARTICLE, FUR, IRON_DARK, 0.8F, 40, 0.07, 0.9, 30);
+        burst(level, c, LodestoneParticleRegistry.SPARK_PARTICLE, EMBER, BLOOD, 0.25F, 20, 0.3, 0.4, 30);
+        burst(level, c, LodestoneParticleRegistry.WISP_PARTICLE, FUR, FUR, 0.15F, 30, 0.12, 0.6, 25);
+    }
+
+    /** Zarpazo: tres tajos rojos en diagonal. */
+    private static void claw(Level level, Vec3 pos, Entity target) {
+        Vec3 c = pos.add(0, target != null ? target.getBbHeight() * 0.6 : 1.0, 0);
+        RandomSource r = level.random;
+        for (int line = -1; line <= 1; line++) {
+            for (int i = 0; i < 6; i++) {
+                double t = i / 5.0 - 0.5;
+                WorldParticleBuilder.create(LodestoneParticleRegistry.SPARK_PARTICLE)
+                        .setScaleData(GenericParticleData.create(0.15F, 0F).build())
+                        .setTransparencyData(GenericParticleData.create(1F, 0F).build())
+                        .setColorData(color(EMBER, BLOOD))
+                        .setLifetime(8 + r.nextInt(4))
+                        .enableNoClip()
+                        .spawn(level, c.x + t * 0.8 + line * 0.15, c.y - t * 0.8, c.z + line * 0.15);
+            }
+        }
+    }
+
+    /** Estela de los ojos rojos (dos puntos de luz que se quedan atrás al moverse). */
+    public static void eyeTrail(Player player) {
+        Level level = player.level();
+        Vec3 eye = player.getEyePosition();
+        Vec3 look = Vec3.directionFromRotation(0, player.getYHeadRot());
+        Vec3 right = new Vec3(-look.z, 0, look.x);
+        double scale = com.markadrii.seals.seal.SealVisuals.werewolf(player) ? 1.1 : 1.0;
+        for (int side = -1; side <= 1; side += 2) {
+            Vec3 p = eye.add(look.scale(0.27 * scale)).add(right.scale(0.11 * side * scale)).add(0, 0.03, 0);
+            WorldParticleBuilder.create(LodestoneParticleRegistry.WISP_PARTICLE)
+                    .setScaleData(GenericParticleData.create(0.07F, 0.0F).build())
+                    .setTransparencyData(GenericParticleData.create(0.9F, 0F).build())
+                    .setColorData(color(EMBER, BLOOD))
+                    .setLifetime(10)
+                    .setFullBrightLighting()
+                    .enableNoClip()
+                    .spawn(level, p.x, p.y, p.z);
+        }
     }
 
     // ---------------------------------------------------------------------------------------

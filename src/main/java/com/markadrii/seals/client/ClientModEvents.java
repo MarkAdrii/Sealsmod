@@ -10,6 +10,9 @@ import com.markadrii.seals.client.render.ScaledGolemRenderer;
 import com.markadrii.seals.client.render.ShoulderGolemLayer;
 import com.markadrii.seals.client.render.InnerWorldEffects;
 import com.markadrii.seals.entity.InnerGolemEntity;
+import com.markadrii.seals.entity.InnerWolfEntity;
+import com.markadrii.seals.client.render.PrimalEyesLayer;
+import com.markadrii.seals.client.render.ScaledWolfRenderer;
 import com.markadrii.seals.entity.MiniGolemEntity;
 import com.markadrii.seals.world.InnerWorld;
 import net.minecraftforge.client.event.RegisterDimensionSpecialEffectsEvent;
@@ -48,6 +51,8 @@ public final class ClientModEvents {
                 ctx -> new ScaledGolemRenderer<>(ctx, MiniGolemEntity.RENDER_SCALE));
         event.registerEntityRenderer(ModEntities.INNER_GOLEM.get(),
                 ctx -> new ScaledGolemRenderer<>(ctx, InnerGolemEntity.RENDER_SCALE));
+        event.registerEntityRenderer(ModEntities.INNER_WOLF.get(),
+                ctx -> new ScaledWolfRenderer(ctx, InnerWolfEntity.RENDER_SCALE));
     }
 
     @SubscribeEvent
@@ -57,6 +62,7 @@ public final class ClientModEvents {
             if (renderer instanceof PlayerRenderer playerRenderer) {
                 playerRenderer.addLayer(new MantoLayer(playerRenderer));
                 playerRenderer.addLayer(new ShoulderGolemLayer(playerRenderer, event.getEntityModels()));
+                playerRenderer.addLayer(new PrimalEyesLayer(playerRenderer));
             }
         }
     }

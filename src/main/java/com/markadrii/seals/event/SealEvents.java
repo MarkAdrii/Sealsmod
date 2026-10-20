@@ -3,7 +3,10 @@ package com.markadrii.seals.event;
 import com.markadrii.seals.Seals;
 import com.markadrii.seals.entity.HolyGolemEntity;
 import com.markadrii.seals.bond.BondManager;
-import com.markadrii.seals.entity.InnerGolemEntity;
+import com.markadrii.seals.entity.InnerMob;
+import com.markadrii.seals.item.SealingScrollItem;
+import com.markadrii.seals.seal.SealRegistry;
+import net.minecraft.world.item.ItemStack;
 import com.markadrii.seals.entity.MiniGolemEntity;
 import com.markadrii.seals.entity.OwnedGolemEntity;
 import com.markadrii.seals.world.InnerWorld;
@@ -12,6 +15,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.living.AnimalTameEvent;
+import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import com.markadrii.seals.seal.SealCapability;
 import com.markadrii.seals.seal.SealData;
@@ -103,6 +108,23 @@ public final class SealEvents {
     }
 
     @SubscribeEvent
+    public static void onEat(LivingEntityUseItemEvent.Finish event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        SealData data = SealCapability.get(player);
+        SealDefinition def = data.definition();
+        if (def != null) def.onEat(player, data, event.getItem());
+    }
+
+    /** Guarda el día en que se domesticó un animal (el lobo necesita 2 días contigo para sellarlo). */
+    @SubscribeEvent
+    public static void onTame(AnimalTameEvent event) {
+        if (event.getTamer() instanceof ServerPlayer player) {
+            event.getAnimal().getPersistentData().putLong(com.markadrii.seals.seal.wolf.WolfSeal.TAMED_DAY_TAG,
+                    SealManager.currentDay(player.server));
+        }
+    }
+
+    @SubscribeEvent
     public static void onTrade(TradeWithVillagerEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         SealData data = SealCapability.get(player);
@@ -132,7 +154,7 @@ public final class SealEvents {
         if (!data.fighting() || !InnerWorld.isInside(player)) return;
         if (event.getAmount() >= player.getHealth() - 1.0F) {
             event.setCanceled(true);
-            InnerGolemEntity golem = InnerWorld.golemOf(player);
+            InnerMob golem = InnerWorld.golemOf(player);
             if (golem != null) BondManager.endFight(player, golem, false);
         }
     }
@@ -151,6 +173,20 @@ public final class SealEvents {
     // ---------------------------------------------------------------------------------------
     // Mini golem: shift + clic derecho para subirlo o bajarlo del hombro
     // ---------------------------------------------------------------------------------------
+
+    /**
+     * El pergamino tiene prioridad sobre la interacción normal del mob
+     * (por ejemplo, tu lobo se sentaría en vez de dejarse sellar).
+     */
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void onScrollInteract(PlayerInteractEvent.EntityInteract event) {
+        ItemStack stack = event.getItemStack();
+        if (!(stack.getItem() instanceof SealingScrollItem scroll)) return;
+        if (!(event.getTarget() instanceof LivingEntity target) || SealRegistry.forEntity(target.getType()) == null) return;
+        InteractionResult result = scroll.interactLivingEntity(stack, event.getEntity(), target, event.getHand());
+        event.setCanceled(true);
+        event.setCancellationResult(result);
+    }
 
     @SubscribeEvent
     public static void onInteractEntity(PlayerInteractEvent.EntityInteract event) {

@@ -1,6 +1,6 @@
 package com.markadrii.seals.bond;
 
-import com.markadrii.seals.entity.InnerGolemEntity;
+import com.markadrii.seals.entity.InnerMob;
 import com.markadrii.seals.entity.MiniGolemEntity;
 import com.markadrii.seals.network.ModNetwork;
 import com.markadrii.seals.network.S2CDialogPacket;
@@ -50,8 +50,6 @@ public final class BondManager {
 
     // --- Niveles necesarios (nivel 2 = 1 estrella) ---
     public static final int ENTER_LEVEL = 2;
-    public static final int FIGHT_LEVEL = 3;
-    public static final int BOND_LEVEL = 4;
 
     /** Boost del vínculo: 10 minutos. */
     public static final int BOOST_TICKS = 20 * 60 * 10;
@@ -117,22 +115,22 @@ public final class BondManager {
         }
     }
 
-    public static void openDialog(ServerPlayer player, InnerGolemEntity golem) {
+    public static void openDialog(ServerPlayer player, InnerMob golem) {
         SealData data = SealCapability.get(player);
         SealDefinition def = data.definition();
         if (def == null || !data.inInner()) return;
         String k = def.textKey() + ".inner.";
-        sendDialog(player, def, Component.translatable(k + "greet." + player.getRandom().nextInt(4)), options(data), false);
+        sendDialog(player, def, Component.translatable(k + "greet." + player.getRandom().nextInt(4)), options(data, def), false);
     }
 
-    private static List<Integer> options(SealData data) {
+    private static List<Integer> options(SealData data, SealDefinition def) {
         List<Integer> list = new ArrayList<>();
         add(list, data, DialogOption.HOW);
         add(list, data, DialogOption.FEEL);
         add(list, data, DialogOption.FOOD_ASK);
         if (data.visitDone(DialogOption.FOOD_ASK.bit)) add(list, data, DialogOption.FOOD_OFFER);
-        if (data.level() >= FIGHT_LEVEL) add(list, data, DialogOption.FIGHT);
-        if (data.level() >= BOND_LEVEL) add(list, data, DialogOption.BOND);
+        if (def.fightLevel() > 0 && data.level() >= def.fightLevel()) add(list, data, DialogOption.FIGHT);
+        if (data.level() >= def.bondLevel()) add(list, data, DialogOption.BOND);
         list.add(DialogOption.BREAK.ordinal());
         list.add(DialogOption.EXIT.ordinal());
         list.add(DialogOption.BYE.ordinal());
@@ -152,7 +150,8 @@ public final class BondManager {
         SealData data = SealCapability.get(player);
         SealDefinition def = data.definition();
         if (def == null || !data.inInner() || data.fighting()) return;
-        InnerGolemEntity golem = InnerWorld.golemOf(player);
+        InnerMob innerMob = InnerWorld.golemOf(player);
+        Mob golem = innerMob == null ? null : innerMob.asMob();
         if (option != DialogOption.EXIT && option != DialogOption.BYE
                 && (golem == null || golem.distanceToSqr(player) > 12 * 12)) return;
         if (option.bit != 0 && data.visitDone(option.bit)) return;
@@ -166,50 +165,50 @@ public final class BondManager {
                 String q = option == DialogOption.HOW ? "how" : "feel";
                 boolean likes = random.nextFloat() < def.likeChance();
                 if (likes) {
-                    sendDialog(player, def, Component.translatable(k + q + ".yes." + random.nextInt(3)), options(data), false);
+                    sendDialog(player, def, Component.translatable(k + q + ".yes." + random.nextInt(3)), options(data, def), false);
                     SealManager.addAffinity(player, data, CHAT_AFFINITY, "affinity.seals.reason.chat");
                 } else {
-                    sendDialog(player, def, Component.translatable(k + q + ".no." + random.nextInt(2)), options(data), false);
+                    sendDialog(player, def, Component.translatable(k + q + ".no." + random.nextInt(2)), options(data, def), false);
                 }
             }
             case FOOD_ASK -> {
                 data.markVisit(option.bit);
-                sendDialog(player, def, Component.translatable(k + "food.ask"), options(data), false);
+                sendDialog(player, def, Component.translatable(k + "food.ask"), options(data, def), false);
             }
             case FOOD_OFFER -> {
                 Item food = def.favoriteFood();
                 if (food == null || !takeOne(player, food)) {
-                    sendDialog(player, def, Component.translatable(k + "food.none"), options(data), false);
+                    sendDialog(player, def, Component.translatable(k + "food.none"), options(data, def), false);
                     return;
                 }
                 data.markVisit(option.bit);
                 player.level().playSound(null, player.blockPosition(), SoundEvents.IRON_GOLEM_REPAIR, SoundSource.PLAYERS, 1.0F, 1.0F);
                 SealManager.fx(golem, S2CFxPacket.Type.LEVEL_UP);
-                sendDialog(player, def, Component.translatable(k + "food.thanks"), options(data), false);
+                sendDialog(player, def, Component.translatable(k + "food.thanks"), options(data, def), false);
                 SealManager.addAffinity(player, data, FOOD_AFFINITY, "affinity.seals.reason.food");
             }
             case FIGHT -> {
-                if (data.level() < FIGHT_LEVEL || golem == null) return;
+                if (def.fightLevel() < 0 || data.level() < def.fightLevel() || innerMob == null) return;
                 data.markVisit(option.bit);
                 data.setFighting(true);
                 sendDialog(player, def, Component.translatable(k + "fight.start"), List.of(), true);
                 player.sendSystemMessage(Component.literal("[").append(def.name()).append("] ").withStyle(ChatFormatting.GOLD)
                         .append(Component.translatable(k + "fight.start").withStyle(ChatFormatting.WHITE)));
-                golem.startFight(player);
+                innerMob.startFight(player);
                 player.level().playSound(null, golem.blockPosition(), SoundEvents.IRON_GOLEM_HURT, SoundSource.HOSTILE, 1.5F, 0.5F);
                 SealManager.sync(player);
             }
             case BOND -> {
-                if (data.level() < BOND_LEVEL) return;
+                if (data.level() < def.bondLevel()) return;
                 long left = daysLeft(today(player), data.lastBondDay(), BOND_DAYS);
                 if (left > 0) {
-                    sendDialog(player, def, Component.translatable(k + "bond.wait", left), options(data), false);
+                    sendDialog(player, def, Component.translatable(k + "bond.wait", left), options(data, def), false);
                     return;
                 }
                 data.markVisit(option.bit);
                 data.setLastBondDay(today(player));
                 startBoost(player, data);
-                sendDialog(player, def, Component.translatable(k + "bond.yes"), options(data), false);
+                sendDialog(player, def, Component.translatable(k + "bond.yes"), options(data, def), false);
             }
             case BREAK -> sendDialog(player, def, Component.translatable(k + "break.ask"),
                     List.of(DialogOption.BREAK_CONFIRM.ordinal(), DialogOption.BYE.ordinal()), false);
@@ -239,7 +238,7 @@ public final class BondManager {
     }
 
     /** Fin de la pelea en el mundo interior. */
-    public static void endFight(ServerPlayer player, InnerGolemEntity golem, boolean playerWon) {
+    public static void endFight(ServerPlayer player, InnerMob golem, boolean playerWon) {
         SealData data = SealCapability.get(player);
         SealDefinition def = data.definition();
         if (def == null || !data.fighting()) return;
@@ -248,12 +247,12 @@ public final class BondManager {
         String k = def.textKey() + ".inner.";
         if (playerWon) {
             int gain = Math.round(FIGHT_AFFINITY * data.ageScale());
-            player.level().playSound(null, golem.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1.0F, 0.7F);
-            sendDialog(player, def, Component.translatable(k + "fight.win"), options(data), false);
+            player.level().playSound(null, golem.asMob().blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1.0F, 0.7F);
+            sendDialog(player, def, Component.translatable(k + "fight.win"), options(data, def), false);
             SealManager.addAffinity(player, data, gain, "affinity.seals.reason.fight");
         } else {
             player.setHealth(Math.max(player.getHealth(), 4.0F));
-            sendDialog(player, def, Component.translatable(k + "fight.lose"), options(data), false);
+            sendDialog(player, def, Component.translatable(k + "fight.lose"), options(data, def), false);
         }
         SealManager.sync(player);
     }

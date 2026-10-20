@@ -1,6 +1,7 @@
 package com.markadrii.seals.seal;
 
 import com.markadrii.seals.seal.irongolem.IronGolemSeal;
+import com.markadrii.seals.seal.wolf.WolfSeal;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -15,6 +16,7 @@ public final class SealRegistry {
     private static final Map<ResourceLocation, SealDefinition> SEALS = new LinkedHashMap<>();
 
     public static final IronGolemSeal IRON_GOLEM = register(new IronGolemSeal());
+    public static final WolfSeal WOLF = register(new WolfSeal());
 
     private SealRegistry() {}
 

@@ -1,7 +1,8 @@
 package com.markadrii.seals.world;
 
 import com.markadrii.seals.Seals;
-import com.markadrii.seals.entity.InnerGolemEntity;
+import com.markadrii.seals.entity.InnerMob;
+import net.minecraft.world.entity.Mob;
 import com.markadrii.seals.network.ModNetwork;
 import com.markadrii.seals.network.S2CFxPacket;
 import com.markadrii.seals.network.S2CInnerWorldPacket;
@@ -87,11 +88,11 @@ public final class InnerWorld {
     }
 
     @Nullable
-    public static InnerGolemEntity golemOf(ServerPlayer player) {
+    public static InnerMob golemOf(ServerPlayer player) {
         Session s = SESSIONS.get(player.getUUID());
         ServerLevel level = player.server.getLevel(KEY);
         if (s == null || level == null || s.golemId == null) return null;
-        return level.getEntity(s.golemId) instanceof InnerGolemEntity g ? g : null;
+        return level.getEntity(s.golemId) instanceof InnerMob g ? g : null;
     }
 
     private static BlockPos originFor(MinecraftServer server, UUID player) {
@@ -127,11 +128,11 @@ public final class InnerWorld {
 
         // El mob sellado, detrás de la puerta
         Session session = new Session(origin);
-        InnerGolemEntity golem = ModEntities.INNER_GOLEM.get().create(inner);
-        if (golem != null) {
+        Mob golem = def.createInnerMob(inner);
+        if (golem instanceof InnerMob innerMob) {
             Vec3 home = new Vec3(origin.getX() + 0.5, origin.getY(), origin.getZ() + GOLEM_Z + 0.5);
             float s = data.ageScale();
-            golem.setup(player, home, 150.0 * s, 10.0 * s);
+            innerMob.setupInner(player, home, def.innerHealth() * s, def.innerAttack() * s);
             golem.moveTo(home.x, home.y, home.z, 180.0F, 0.0F);
             golem.setYHeadRot(180.0F);
             golem.setYBodyRot(180.0F);

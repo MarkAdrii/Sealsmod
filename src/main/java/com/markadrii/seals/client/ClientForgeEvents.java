@@ -4,6 +4,18 @@ import com.markadrii.seals.Seals;
 import com.markadrii.seals.client.fx.SealFx;
 import com.markadrii.seals.client.gui.SealScreen;
 import com.markadrii.seals.client.gui.SealScreenEffect;
+import com.markadrii.seals.client.render.WerewolfRenderer;
+import com.markadrii.seals.seal.wolf.WolfSeal;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraftforge.client.event.RenderArmEvent;
+import net.minecraftforge.client.event.RenderNameTagEvent;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.EventPriority;
+import java.util.HashSet;
+import java.util.Set;
 import com.markadrii.seals.network.C2SAbilityPacket;
 import com.markadrii.seals.network.C2SSealActionPacket;
 import com.markadrii.seals.world.InnerWorld;
@@ -48,12 +60,52 @@ public final class ClientForgeEvents {
             for (Player p : mc.level.players()) {
                 if (SealVisuals.manto(p) && !p.isInvisible()) SealFx.mantoAmbient(p);
             }
+            tickInstinct(mc);
+            // Estela roja de los ojos
+            for (Player p : mc.level.players()) {
+                if (!SealVisuals.eyes(p) || p.isInvisible()) continue;
+                if (p == mc.player && mc.options.getCameraType().isFirstPerson()) continue;
+                SealFx.eyeTrail(p);
+            }
             // Mundo interior: niebla dorada y ondas al caminar
             if (mc.level.dimension() == InnerWorld.KEY && ClientSealData.inInner()) {
                 SealFx.innerAmbient(mc.level, ClientSealData.innerDoor(), mc.player);
                 boolean walking = mc.player.onGround() && mc.player.getDeltaMovement().horizontalDistanceSqr() > 0.002;
                 if (walking && mc.player.tickCount % 6 == 0) SealFx.footRipple(mc.player);
             }
+        }
+    }
+
+    // --- Instinto primal: sientes a las criaturas cercanas ------------------------------
+
+    private static final Set<Integer> SENSED = new HashSet<>();
+
+    private static void tickInstinct(Minecraft mc) {
+        boolean on = ClientSealData.get().hasSeal() && ClientSealData.get().instinct();
+        Set<Integer> now = new HashSet<>();
+        if (on) {
+            double r = WolfSeal.INSTINCT_RANGE;
+            for (Entity e : mc.level.entitiesForRendering()) {
+                if (e == mc.player || !(e instanceof LivingEntity) || !e.isAlive()) continue;
+                if (e.distanceToSqr(mc.player) > r * r) continue;
+                now.add(e.getId());
+                EntityFlagsAccess.setLocalGlow(e, true);
+            }
+        }
+        for (int id : SENSED) {
+            if (now.contains(id)) continue;
+            Entity e = mc.level.getEntity(id);
+            if (e != null) EntityFlagsAccess.setLocalGlow(e, false);
+        }
+        SENSED.clear();
+        SENSED.addAll(now);
+    }
+
+    /** Con el instinto activo ves el nombre de las criaturas que sientes. */
+    @SubscribeEvent
+    public static void onNameTag(RenderNameTagEvent event) {
+        if (SENSED.contains(event.getEntity().getId())) {
+            event.setResult(Event.Result.ALLOW);
         }
     }
 
@@ -146,6 +198,25 @@ public final class ClientForgeEvents {
 
     // --- "Yo soy el golem": el jugador se dibuja más grande ------------------------------
 
+    // --- Hombre lobo: se dibuja con su propio modelo ------------------------------------
+
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void onRenderWerewolf(RenderPlayerEvent.Pre event) {
+        if (!(event.getEntity() instanceof AbstractClientPlayer player) || !SealVisuals.werewolf(player)) return;
+        event.setCanceled(true);
+        float yaw = Mth.lerp(event.getPartialTick(), player.yRotO, player.getYRot());
+        WerewolfRenderer.get().render(player, yaw, event.getPartialTick(), event.getPoseStack(),
+                event.getMultiBufferSource(), event.getPackedLight());
+    }
+
+    @SubscribeEvent
+    public static void onRenderArm(RenderArmEvent event) {
+        if (!SealVisuals.werewolf(event.getPlayer())) return;
+        event.setCanceled(true);
+        WerewolfRenderer.get().renderArm(event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(),
+                event.getPlayer(), event.getArm());
+    }
+
     @SubscribeEvent
     public static void onRenderPlayerPre(RenderPlayerEvent.Pre event) {
         scaledPlayer = SealVisuals.golemForm(event.getEntity());
@@ -169,5 +240,6 @@ public final class ClientForgeEvents {
     public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
         ClientSealData.reset();
         SealVisuals.clearClient();
+        SENSED.clear();
     }
 }
