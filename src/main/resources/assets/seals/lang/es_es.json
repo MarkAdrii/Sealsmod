@@ -4,11 +4,9 @@
   "item.seals.sealing_scroll.tooltip": "Clic derecho sobre un mob debilitado para sellarlo dentro de ti",
   "entity.seals.holy_golem": "Holy golem",
   "entity.seals.freed_golem": "Golem liberado",
-
   "key.categories.seals": "Seals",
   "key.seals.open_seal": "Abrir el vínculo",
   "key.seals.combat_mode": "Modo combate",
-
   "message.seals.no_seal": "No tienes ningún mob sellado",
   "message.seals.already_sealed": "Ya llevas a %s sellado dentro de ti",
   "message.seals.too_strong": "%s es demasiado fuerte: bájale la vida al %s%% o menos",
@@ -24,7 +22,6 @@
   "message.seals.ability_passive": "%s es pasiva: siempre está activa",
   "message.seals.ability_cooldown": "%s se está recargando (%s s)",
   "message.seals.birthday": "%s cumple %s años",
-
   "affinity.seals.reason.trade": "tradeo",
   "affinity.seals.reason.hostile": "criatura hostil",
   "affinity.seals.reason.boss": "boss",
@@ -35,11 +32,9 @@
   "stability.seals.reason.teammate": "compañero de equipo",
   "stability.seals.reason.pet": "mascota",
   "stability.seals.reason.golem": "golem de hierro",
-
   "hud.seals.combat": "MODO COMBATE · %s",
   "hud.seals.exit": "[%s] salir",
   "hud.seals.form_time": "Forma de golem: %s s",
-
   "screen.seals.title": "Vínculo",
   "screen.seals.header": "VÍNCULO · %s",
   "screen.seals.level": "Nivel %s / %s",
@@ -60,12 +55,10 @@
   "screen.seals.combat_hint": "Pulsa %s para entrar en modo combate y usa las teclas 1-9",
   "screen.seals.button.combat": "Modo combate",
   "screen.seals.button.close": "Cerrar",
-
   "ability.seals.kind.toggle": "Activable",
   "ability.seals.kind.passive": "Pasiva",
   "ability.seals.kind.timed": "Transformación",
   "ability.seals.kind.summon": "Invocación",
-
   "ability.seals.manto_ferruquimico": "Manto ferruquímico",
   "ability.seals.manto_ferruquimico.desc": "Tu piel se cubre de hierro gris y brillante. Ganas mucha armadura y nada puede empujarte. Pulsa su tecla para ponértelo o quitártelo.",
   "ability.seals.pies_de_hierro": "Pies de hierro",
@@ -74,7 +67,6 @@
   "ability.seals.yo_soy_el_golem.desc": "Te conviertes en una criatura más grande sin perder tu skin. Ganas armadura y tus puñetazos a mano desnuda pegan mucho más y lanzan a los enemigos por los aires. Se puede combinar con el Manto ferruquímico.",
   "ability.seals.holy_golem": "Holy golem",
   "ability.seals.holy_golem.desc": "Invocas el espíritu azul de un golem que lucha a tu lado. Es más rápido que un golem normal, puede saltar y ataca a quien te ataque. Pulsa otra vez para despedirlo.",
-
   "stat.seals.armor": "Armadura: %s",
   "stat.seals.knockback": "Anti-empuje: %s",
   "stat.seals.fall": "Caída: %s",
@@ -85,7 +77,6 @@
   "stat.seals.cooldown": "Recarga: %s",
   "stat.seals.health": "Vida: %s",
   "stat.seals.damage": "Daño: %s",
-
   "info.seals.bond.title": "Sobre el vínculo",
   "info.seals.bond.hint": "Pasa el ratón por las estrellas, la afinidad, la estabilidad o la edad para ver cómo funcionan.",
   "info.seals.stars.title": "Nivel de afecto",
@@ -99,8 +90,17 @@
   "info.seals.age.title": "Edad",
   "info.seals.age": "Al sellarlo tenía entre %s y %s años. Cada día de Minecraft es un mes y cada 12 días, un año. Cada año aumenta el daño, la duración de las transformaciones y efectos, y la vida de sus invocaciones.",
   "info.seals.age.bonus": "Con %s años, sus habilidades tienen un +%s%% de potencia.",
-
   "seal.seals.iron_golem.bond": "Llevas sellado el espíritu de un Iron Golem, guardián de las aldeas. Es fuerte y leal, pero no soporta que se haga daño a los suyos.",
   "seal.seals.iron_golem.affinity": "Al golem le gusta: comerciar con aldeanos (+1), matar criaturas hostiles (+1), derrotar a un boss (+50) y que uses sus habilidades (+1 cada minuto).",
-  "seal.seals.iron_golem.stability": "Al golem le enfada: matar aldeanos (-10), jugadores (-20) o aliados como tus mascotas, golems de hierro o compañeros de equipo (-5). Si se rompe el sello, sale un golem furioso con el doble de vida."
+  "seal.seals.iron_golem.stability": "Al golem le enfada: matar aldeanos (-10), jugadores (-20) o aliados como tus mascotas, golems de hierro o compañeros de equipo (-5). Si se rompe el sello, sale un golem furioso con el doble de vida.",
+  "command.seals.unknown_seal": "No se puede sellar ese mob: %s",
+  "command.seals.no_seal": "%s no tiene ningún mob sellado",
+  "command.seals.info": "%s · %s · %s/%s ★ · afinidad %s/100 · estabilidad %s/100 · edad %s años y %s meses",
+  "command.seals.sealed": "%s ahora lleva sellado a %s (%s años)",
+  "command.seals.unsealed": "%s ya no lleva sellado a %s",
+  "command.seals.age": "Edad del mob sellado de %s: %s años",
+  "command.seals.affinity": "Afinidad de %s: %s/100 (%s ★)",
+  "command.seals.stars": "Estrellas de %s: %s/%s",
+  "command.seals.stability": "Estabilidad del sello de %s: %s/100",
+  "command.seals.broken": "Se ha roto el sello de %s"
 }

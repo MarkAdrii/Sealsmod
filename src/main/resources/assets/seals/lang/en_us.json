@@ -4,11 +4,9 @@
   "item.seals.sealing_scroll.tooltip": "Right-click a weakened mob to seal it inside you",
   "entity.seals.holy_golem": "Holy Golem",
   "entity.seals.freed_golem": "Freed Golem",
-
   "key.categories.seals": "Seals",
   "key.seals.open_seal": "Open bond",
   "key.seals.combat_mode": "Combat mode",
-
   "message.seals.no_seal": "You have no sealed mob",
   "message.seals.already_sealed": "You already carry %s sealed inside you",
   "message.seals.too_strong": "%s is too strong: bring its health down to %s%% or less",
@@ -24,7 +22,6 @@
   "message.seals.ability_passive": "%s is passive: it is always active",
   "message.seals.ability_cooldown": "%s is recharging (%s s)",
   "message.seals.birthday": "%s turns %s years old",
-
   "affinity.seals.reason.trade": "trade",
   "affinity.seals.reason.hostile": "hostile mob",
   "affinity.seals.reason.boss": "boss",
@@ -35,11 +32,9 @@
   "stability.seals.reason.teammate": "teammate",
   "stability.seals.reason.pet": "pet",
   "stability.seals.reason.golem": "iron golem",
-
   "hud.seals.combat": "COMBAT MODE · %s",
   "hud.seals.exit": "[%s] exit",
   "hud.seals.form_time": "Golem form: %s s",
-
   "screen.seals.title": "Bond",
   "screen.seals.header": "BOND · %s",
   "screen.seals.level": "Level %s / %s",
@@ -60,12 +55,10 @@
   "screen.seals.combat_hint": "Press %s to enter combat mode and use keys 1-9",
   "screen.seals.button.combat": "Combat mode",
   "screen.seals.button.close": "Close",
-
   "ability.seals.kind.toggle": "Toggle",
   "ability.seals.kind.passive": "Passive",
   "ability.seals.kind.timed": "Transformation",
   "ability.seals.kind.summon": "Summon",
-
   "ability.seals.manto_ferruquimico": "Ferrous Mantle",
   "ability.seals.manto_ferruquimico.desc": "Your skin is covered in shiny grey iron. You gain a lot of armor and nothing can knock you back. Press its key to put it on or take it off.",
   "ability.seals.pies_de_hierro": "Iron Feet",
@@ -74,7 +67,6 @@
   "ability.seals.yo_soy_el_golem.desc": "You become a bigger creature while keeping your skin. You gain armor and your bare-handed punches hit much harder and launch enemies into the air. Can be combined with the Ferrous Mantle.",
   "ability.seals.holy_golem": "Holy Golem",
   "ability.seals.holy_golem.desc": "Summon the blue spirit of a golem that fights by your side. It is faster than a normal golem, can jump and attacks whoever attacks you. Press again to dismiss it.",
-
   "stat.seals.armor": "Armor: %s",
   "stat.seals.knockback": "Knockback resistance: %s",
   "stat.seals.fall": "Fall: %s",
@@ -85,7 +77,6 @@
   "stat.seals.cooldown": "Cooldown: %s",
   "stat.seals.health": "Health: %s",
   "stat.seals.damage": "Damage: %s",
-
   "info.seals.bond.title": "About the bond",
   "info.seals.bond.hint": "Hover over the stars, affinity, stability or age to see how they work.",
   "info.seals.stars.title": "Affection level",
@@ -99,8 +90,17 @@
   "info.seals.age.title": "Age",
   "info.seals.age": "When sealed it was between %s and %s years old. Each Minecraft day is a month and every 12 days a year. Each year increases damage, duration of transformations and effects, and the health of its summons.",
   "info.seals.age.bonus": "At %s years old, its abilities have +%s%% power.",
-
   "seal.seals.iron_golem.bond": "You carry the spirit of an Iron Golem, guardian of villages. It is strong and loyal, but it cannot stand harm being done to its own.",
   "seal.seals.iron_golem.affinity": "The golem likes: trading with villagers (+1), killing hostile mobs (+1), defeating a boss (+50) and you using its abilities (+1 every minute).",
-  "seal.seals.iron_golem.stability": "The golem is angered by: killing villagers (-10), players (-20) or allies such as your pets, iron golems or teammates (-5). If the seal breaks, a furious golem with double health comes out."
+  "seal.seals.iron_golem.stability": "The golem is angered by: killing villagers (-10), players (-20) or allies such as your pets, iron golems or teammates (-5). If the seal breaks, a furious golem with double health comes out.",
+  "command.seals.unknown_seal": "That mob cannot be sealed: %s",
+  "command.seals.no_seal": "%s has no sealed mob",
+  "command.seals.info": "%s · %s · %s/%s ★ · affinity %s/100 · stability %s/100 · age %s years %s months",
+  "command.seals.sealed": "%s now carries %s sealed (%s years)",
+  "command.seals.unsealed": "%s no longer carries %s sealed",
+  "command.seals.age": "Age of %s's sealed mob: %s years",
+  "command.seals.affinity": "%s's affinity: %s/100 (%s ★)",
+  "command.seals.stars": "%s's stars: %s/%s",
+  "command.seals.stability": "%s's seal stability: %s/100",
+  "command.seals.broken": "%s's seal has been broken"
 }
