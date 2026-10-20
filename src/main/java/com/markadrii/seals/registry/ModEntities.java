@@ -4,6 +4,8 @@ import com.markadrii.seals.Seals;
 import com.markadrii.seals.entity.HolyGolemEntity;
 import com.markadrii.seals.entity.InnerGolemEntity;
 import com.markadrii.seals.entity.InnerWolfEntity;
+import com.markadrii.seals.entity.InnerElderEntity;
+import com.markadrii.seals.entity.AbyssalTridentEntity;
 import com.markadrii.seals.entity.MiniGolemEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -42,11 +44,25 @@ public class ModEntities {
                     .clientTrackingRange(10)
                     .build(Seals.id("inner_wolf").toString()));
 
+    public static final RegistryObject<EntityType<InnerElderEntity>> INNER_ELDER = ENTITIES.register("inner_elder",
+            () -> EntityType.Builder.<InnerElderEntity>of(InnerElderEntity::new, MobCategory.MISC)
+                    .sized(1.9975F, 1.9975F)
+                    .clientTrackingRange(10)
+                    .build(Seals.id("inner_elder").toString()));
+
+    public static final RegistryObject<EntityType<AbyssalTridentEntity>> ABYSSAL_TRIDENT = ENTITIES.register("abyssal_trident",
+            () -> EntityType.Builder.<AbyssalTridentEntity>of(AbyssalTridentEntity::new, MobCategory.MISC)
+                    .sized(0.5F, 0.5F)
+                    .clientTrackingRange(4)
+                    .updateInterval(20)
+                    .build(Seals.id("abyssal_trident").toString()));
+
     @SubscribeEvent
     public static void onAttributes(EntityAttributeCreationEvent event) {
         event.put(HOLY_GOLEM.get(), HolyGolemEntity.createAttributes().build());
         event.put(MINI_GOLEM.get(), MiniGolemEntity.createAttributes().build());
         event.put(INNER_GOLEM.get(), InnerGolemEntity.createAttributes().build());
         event.put(INNER_WOLF.get(), InnerWolfEntity.createAttributes().build());
+        event.put(INNER_ELDER.get(), InnerElderEntity.createAttributes().build());
     }
 }

@@ -2,6 +2,7 @@ package com.markadrii.seals.seal;
 
 import com.markadrii.seals.seal.irongolem.IronGolemSeal;
 import com.markadrii.seals.seal.wolf.WolfSeal;
+import com.markadrii.seals.seal.elder.ElderGuardianSeal;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -17,6 +18,7 @@ public final class SealRegistry {
 
     public static final IronGolemSeal IRON_GOLEM = register(new IronGolemSeal());
     public static final WolfSeal WOLF = register(new WolfSeal());
+    public static final ElderGuardianSeal ELDER_GUARDIAN = register(new ElderGuardianSeal());
 
     private SealRegistry() {}
 

@@ -200,7 +200,7 @@ public class IronGolemSeal extends SealDefinition {
         return (data.manto() ? com.markadrii.seals.seal.SealVisuals.MANTO : 0)
                 | (data.golemForm() ? com.markadrii.seals.seal.SealVisuals.GOLEM_FORM : 0);
     }
-    @Override public float likeChance() { return 0.9F; }
+    @Override public float likeChance(SealData data) { return 0.9F; }
 
     /** A un golem lo reparan los lingotes de hierro: es lo más parecido a su comida favorita. */
     @Override public net.minecraft.world.item.Item favoriteFood() { return net.minecraft.world.item.Items.IRON_INGOT; }

@@ -36,6 +36,14 @@ public class SealData {
     private int werewolfTicks;
     private int werewolfCooldown;
 
+    // --- Elder Guardian ---
+    private int submergedTicks;        // ticks bajo el agua hoy
+    private long dryDay = -1;          // último día comprobado
+    private boolean dry;               // se está secando: pierde estabilidad
+    private boolean abyssal;           // Forma abisal
+    private int beamTicks;             // carga del rayo
+    private int beamCooldown;
+
     // --- Vínculo (hablar, mundo interior, boost) ---
     private long lastTalkDay = -100;
     private long lastEnterDay = -100;
@@ -47,6 +55,7 @@ public class SealData {
     private float returnYaw;
     private int boostTicks;            // boost del vínculo (BOUND)
     private boolean fighting;          // peleando con el mob en el mundo interior
+    private boolean innerKeyGiven;     // ya entregó lo que pide el mob para abrir la puerta
 
     // --- Mini golem ---
     private boolean miniOut;           // el mini golem está invocado (en el mundo o en el hombro)
@@ -88,6 +97,13 @@ public class SealData {
         holyGolem = null;
         holyCooldown = 0;
         abilityUseTicks = 0;
+        submergedTicks = 0;
+        dryDay = -1;
+        dry = false;
+        abyssal = false;
+        beamTicks = 0;
+        beamCooldown = 0;
+        innerKeyGiven = false;
         instinct = false;
         werewolf = false;
         werewolfTicks = 0;
@@ -134,6 +150,13 @@ public class SealData {
         if (holyGolem != null) tag.putUUID("holyGolem", holyGolem);
         tag.putInt("holyCooldown", holyCooldown);
         tag.putInt("abilityUseTicks", abilityUseTicks);
+        tag.putInt("submergedTicks", submergedTicks);
+        tag.putLong("dryDay", dryDay);
+        tag.putBoolean("dry", dry);
+        tag.putBoolean("abyssal", abyssal);
+        tag.putInt("beamTicks", beamTicks);
+        tag.putInt("beamCooldown", beamCooldown);
+        tag.putBoolean("innerKeyGiven", innerKeyGiven);
         tag.putBoolean("instinct", instinct);
         tag.putBoolean("werewolf", werewolf);
         tag.putInt("werewolfTicks", werewolfTicks);
@@ -173,6 +196,13 @@ public class SealData {
         holyGolem = tag.hasUUID("holyGolem") ? tag.getUUID("holyGolem") : null;
         holyCooldown = tag.getInt("holyCooldown");
         abilityUseTicks = tag.getInt("abilityUseTicks");
+        submergedTicks = tag.getInt("submergedTicks");
+        dryDay = tag.contains("dryDay") ? tag.getLong("dryDay") : -1;
+        dry = tag.getBoolean("dry");
+        abyssal = tag.getBoolean("abyssal");
+        beamTicks = tag.getInt("beamTicks");
+        beamCooldown = tag.getInt("beamCooldown");
+        innerKeyGiven = tag.getBoolean("innerKeyGiven");
         instinct = tag.getBoolean("instinct");
         werewolf = tag.getBoolean("werewolf");
         werewolfTicks = tag.getInt("werewolfTicks");
@@ -231,6 +261,21 @@ public class SealData {
     public void setHolyCooldown(int t) { this.holyCooldown = t; }
     public int abilityUseTicks() { return abilityUseTicks; }
     public void setAbilityUseTicks(int t) { this.abilityUseTicks = t; }
+
+    public int submergedTicks() { return submergedTicks; }
+    public void setSubmergedTicks(int t) { this.submergedTicks = t; }
+    public long dryDay() { return dryDay; }
+    public void setDryDay(long d) { this.dryDay = d; }
+    public boolean dry() { return dry; }
+    public void setDry(boolean v) { this.dry = v; }
+    public boolean abyssal() { return abyssal; }
+    public void setAbyssal(boolean v) { this.abyssal = v; }
+    public int beamTicks() { return beamTicks; }
+    public void setBeamTicks(int t) { this.beamTicks = t; }
+    public int beamCooldown() { return beamCooldown; }
+    public void setBeamCooldown(int t) { this.beamCooldown = t; }
+    public boolean innerKeyGiven() { return innerKeyGiven; }
+    public void setInnerKeyGiven(boolean v) { this.innerKeyGiven = v; }
 
     public boolean instinct() { return instinct; }
     public void setInstinct(boolean v) { this.instinct = v; }

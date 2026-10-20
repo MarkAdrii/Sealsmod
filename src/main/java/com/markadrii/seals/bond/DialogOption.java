@@ -14,7 +14,8 @@ public enum DialogOption {
     BREAK(0),          // Romper el sello en paz
     BREAK_CONFIRM(0),  // Confirmar
     EXIT(0),           // Salir del mundo interior
-    BYE(0);            // Cerrar la conversación
+    BYE(0),            // Cerrar la conversación
+    GIVE_KEY(0);       // Entregar lo que pide para abrir la puerta
 
     /** Bit en SealData.visitFlags (0 = se puede repetir). */
     public final int bit;

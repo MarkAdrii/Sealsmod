@@ -246,6 +246,8 @@ public class SealScreen extends Screen {
             SealAbility a = def.abilities().get(i);
             if (a.kind() != SealAbility.Kind.PASSIVE && def.abilityActive(data, i)) active.add(a.name());
         }
+        Component extra = def.extraPhase(data);
+        if (extra != null) active.add(0, extra);
         if (data.boostTicks() > 0) {
             active.add(0, Component.translatable("screen.seals.phase.boost", (data.boostTicks() + 1199) / 1200));
         }

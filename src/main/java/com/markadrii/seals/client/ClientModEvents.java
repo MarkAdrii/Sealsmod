@@ -53,6 +53,10 @@ public final class ClientModEvents {
                 ctx -> new ScaledGolemRenderer<>(ctx, InnerGolemEntity.RENDER_SCALE));
         event.registerEntityRenderer(ModEntities.INNER_WOLF.get(),
                 ctx -> new ScaledWolfRenderer(ctx, InnerWolfEntity.RENDER_SCALE));
+        event.registerEntityRenderer(ModEntities.INNER_ELDER.get(),
+                net.minecraft.client.renderer.entity.ElderGuardianRenderer::new);
+        event.registerEntityRenderer(ModEntities.ABYSSAL_TRIDENT.get(),
+                com.markadrii.seals.client.render.AbyssalTridentRenderer::new);
     }
 
     @SubscribeEvent
@@ -63,6 +67,7 @@ public final class ClientModEvents {
                 playerRenderer.addLayer(new MantoLayer(playerRenderer));
                 playerRenderer.addLayer(new ShoulderGolemLayer(playerRenderer, event.getEntityModels()));
                 playerRenderer.addLayer(new PrimalEyesLayer(playerRenderer));
+                playerRenderer.addLayer(new com.markadrii.seals.client.render.AbyssalLayer(playerRenderer));
             }
         }
     }

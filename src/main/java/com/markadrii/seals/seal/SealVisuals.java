@@ -15,6 +15,7 @@ public final class SealVisuals {
     public static final int SHOULDER = 4;     // mini golem en el hombro
     public static final int WEREWOLF = 8;     // Lobo: hombre lobo
     public static final int EYES = 16;        // Lobo: ojos rojos (instinto primal)
+    public static final int ABYSSAL = 32;     // Elder Guardian: forma abisal
 
     /** Solo se usa en el cliente: id de entidad → bits. */
     private static final Map<Integer, Integer> CLIENT = new ConcurrentHashMap<>();
@@ -53,4 +54,5 @@ public final class SealVisuals {
     public static boolean shoulder(Player player) { return has(player, SHOULDER); }
     public static boolean werewolf(Player player) { return has(player, WEREWOLF); }
     public static boolean eyes(Player player) { return has(player, EYES); }
+    public static boolean abyssal(Player player) { return has(player, ABYSSAL); }
 }

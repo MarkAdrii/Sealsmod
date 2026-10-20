@@ -301,8 +301,10 @@ public final class SealCommands {
         if (newLevel < data.level()) {
             def.deactivateAll(player, data); // apaga habilidades que puedan quedar bloqueadas
         }
+        boolean up = newLevel > data.level();
         data.setLevel(newLevel);
         data.setAffinity(0);
+        if (up) def.onLevelUp(player, data, newLevel);
         SealManager.sync(player);
         ok(source, Component.translatable("command.seals.stars", player.getDisplayName(), newLevel - 1, def.maxStars()));
         return true;

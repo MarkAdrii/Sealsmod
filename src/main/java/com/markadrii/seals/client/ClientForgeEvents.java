@@ -61,6 +61,7 @@ public final class ClientForgeEvents {
                 if (SealVisuals.manto(p) && !p.isInvisible()) SealFx.mantoAmbient(p);
             }
             tickInstinct(mc);
+            com.markadrii.seals.client.fx.BeamFx.tick();
             // Estela roja de los ojos
             for (Player p : mc.level.players()) {
                 if (!SealVisuals.eyes(p) || p.isInvisible()) continue;
@@ -241,5 +242,6 @@ public final class ClientForgeEvents {
         ClientSealData.reset();
         SealVisuals.clearClient();
         SENSED.clear();
+        com.markadrii.seals.client.fx.BeamFx.clear();
     }
 }

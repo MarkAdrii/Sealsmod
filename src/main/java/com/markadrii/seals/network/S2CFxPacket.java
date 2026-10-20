@@ -28,7 +28,9 @@ public record S2CFxPacket(Type type, double x, double y, double z, int entityId)
         RELEASE,       // el sello se rompe en paz
         INSTINCT,      // lobo: se activa el instinto primal
         WEREWOLF,      // lobo: transformación en hombre lobo
-        CLAW           // lobo: zarpazo
+        CLAW,          // lobo: zarpazo
+        BEAM_HIT,      // elder: impacto del rayo
+        ABYSSAL        // elder: forma abisal / tridente
     }
 
     public static void encode(S2CFxPacket msg, FriendlyByteBuf buf) {

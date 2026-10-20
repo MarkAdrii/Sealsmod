@@ -66,6 +66,7 @@ public final class InnerWorld {
         UUID golemId;
         int doorStep = -1;   // -1 = cerrada, 0..DOOR_HALF = abriéndose, > DOOR_HALF = abierta
         int doorTimer;
+        boolean prompted;    // ya le ha pedido la llave en esta visita
 
         Session(BlockPos origin) {
             this.origin = origin;
@@ -203,6 +204,16 @@ public final class InnerWorld {
             if (s.doorStep < 0) {
                 double dz = door.getZ() - player.getZ();
                 if (dz < 16 && Math.abs(player.getX() - door.getX()) < HALF_WIDTH) {
+                    // Algunos mobs no abren la puerta hasta que les traes algo (la primera vez)
+                    com.markadrii.seals.seal.SealData d = com.markadrii.seals.seal.SealCapability.get(player);
+                    SealDefinition def = d.definition();
+                    if (def != null && def.innerKeyItem() != null && !d.innerKeyGiven()) {
+                        if (!s.prompted) {
+                            s.prompted = true;
+                            com.markadrii.seals.bond.BondManager.promptKey(player);
+                        }
+                        continue;
+                    }
                     s.doorStep = 0;
                     s.doorTimer = 0;
                     inner.playSound(null, door, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 2.0F, 0.5F);
@@ -234,6 +245,18 @@ public final class InnerWorld {
                         .withStyle(ChatFormatting.YELLOW), true);
             }
         }
+    }
+
+    /** Abre la puerta ya (por ejemplo, al entregar la llave). */
+    public static void openDoor(ServerPlayer player) {
+        Session s = SESSIONS.get(player.getUUID());
+        ServerLevel inner = player.server.getLevel(KEY);
+        if (s == null || inner == null || s.doorStep >= 0) return;
+        s.doorStep = 0;
+        s.doorTimer = 0;
+        BlockPos door = doorCenter(s.origin);
+        inner.playSound(null, door, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 2.0F, 0.5F);
+        inner.playSound(null, door, SoundEvents.IRON_DOOR_OPEN, SoundSource.BLOCKS, 2.0F, 0.4F);
     }
 
     // ---------------------------------------------------------------------------------------

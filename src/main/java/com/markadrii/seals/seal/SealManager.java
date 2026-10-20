@@ -122,6 +122,7 @@ public final class SealManager {
                             a.name()).withStyle(ChatFormatting.AQUA)));
             player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1.0F, 0.8F);
             fx(player, S2CFxPacket.Type.LEVEL_UP);
+            def.onLevelUp(player, data, level);
         }
         sync(player);
     }

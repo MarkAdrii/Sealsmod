@@ -292,7 +292,7 @@ public class WolfSeal extends SealDefinition {
     // ---------------------------------------------------------------------------------------
 
     @Override public int talkLines() { return 10; }
-    @Override public float likeChance() { return 0.9F; }
+    @Override public float likeChance(SealData data) { return 0.9F; }
     @Override public Item favoriteFood() { return Items.BEEF; }
     @Override public double innerHealth() { return 40.0; }
     @Override public double innerAttack() { return 6.0; }

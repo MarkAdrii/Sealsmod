@@ -21,7 +21,9 @@ public record SealAbility(String id, int unlockLevel, Kind kind) {
         /** Dura un tiempo y luego tiene recarga. */
         TIMED,
         /** Invoca algo. */
-        SUMMON
+        SUMMON,
+        /** Un ataque que se lanza y tiene recarga. */
+        ACTIVE
     }
 
     public Component name() {

@@ -48,5 +48,8 @@ public final class ModNetwork {
         CHANNEL.messageBuilder(S2CScreenEffectPacket.class, id++, NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(S2CScreenEffectPacket::encode).decoder(S2CScreenEffectPacket::decode)
                 .consumerMainThread(S2CScreenEffectPacket::handle).add();
+        CHANNEL.messageBuilder(S2CBeamPacket.class, id++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(S2CBeamPacket::encode).decoder(S2CBeamPacket::decode)
+                .consumerMainThread(S2CBeamPacket::handle).add();
     }
 }

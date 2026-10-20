@@ -99,9 +99,34 @@ public abstract class SealDefinition {
         return 0;
     }
 
-    /** Probabilidad de que le caigas bien al preguntarle cómo está (0-1). */
-    public float likeChance() {
+    /** Probabilidad de que le caigas bien al preguntarle cómo está en el mundo interior (0-1). */
+    public float likeChance(SealData data) {
         return 0.9F;
+    }
+
+    /** Probabilidad de que te conteste bien al pulsar Hablar (0-1). Si falla, no da afinidad. */
+    public float talkChance(SealData data) {
+        return 1.0F;
+    }
+
+    /** Frases distintas cuando no te contesta (claves ".talk.ignore.0", ".1"...). */
+    public int ignoreLines() {
+        return 0;
+    }
+
+    /**
+     * Objeto que hay que entregarle para que abra la puerta del mundo interior la primera vez
+     * (null = la puerta se abre sola).
+     */
+    @org.jetbrains.annotations.Nullable
+    public net.minecraft.world.item.Item innerKeyItem() {
+        return null;
+    }
+
+    /** Texto extra para la fase en la interfaz (por ejemplo, "se está secando"). */
+    @org.jetbrains.annotations.Nullable
+    public Component extraPhase(SealData data) {
+        return null;
     }
 
     /** Su comida favorita (se le puede ofrecer en el mundo interior). */
@@ -141,6 +166,14 @@ public abstract class SealDefinition {
         }
         return null;
     }
+
+    /** Al jugador le hacen daño (antes de aplicarlo). Devuelve el daño final. */
+    public float onPlayerHurt(ServerPlayer player, SealData data, net.minecraft.world.damagesource.DamageSource source, float amount) {
+        return amount;
+    }
+
+    /** Ha subido de nivel de afecto (nueva estrella). */
+    public void onLevelUp(ServerPlayer player, SealData data, int newLevel) {}
 
     /** El jugador ha terminado de comer o beber algo. */
     public void onEat(ServerPlayer player, SealData data, net.minecraft.world.item.ItemStack stack) {}

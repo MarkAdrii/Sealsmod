@@ -5,6 +5,19 @@ import com.markadrii.seals.entity.HolyGolemEntity;
 import com.markadrii.seals.bond.BondManager;
 import com.markadrii.seals.entity.InnerMob;
 import com.markadrii.seals.item.SealingScrollItem;
+import com.markadrii.seals.entity.InnerElderEntity;
+import com.markadrii.seals.network.S2CFxPacket;
+import com.markadrii.seals.network.S2CScreenEffectPacket;
+import com.markadrii.seals.registry.ModBlocks;
+import com.markadrii.seals.seal.elder.ElderGuardianSeal;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.monster.ElderGuardian;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
 import com.markadrii.seals.seal.SealRegistry;
 import net.minecraft.world.item.ItemStack;
 import com.markadrii.seals.entity.MiniGolemEntity;
@@ -73,6 +86,79 @@ public final class SealEvents {
     // ---------------------------------------------------------------------------------------
     // Afinidad / estabilidad
     // ---------------------------------------------------------------------------------------
+
+    /**
+     * Elder Guardian: se sella dejando que te mate mientras llevas el pergamino en la mano secundaria.
+     * En ese momento no mueres: recuperas toda la vida y queda sellado dentro de ti.
+     */
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onElderSeal(LivingDeathEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!(event.getSource().getEntity() instanceof ElderGuardian elder) || elder instanceof InnerElderEntity) return;
+        ItemStack offhand = player.getOffhandItem();
+        if (!(offhand.getItem() instanceof SealingScrollItem)) return;
+        SealData data = SealCapability.get(player);
+        if (data.hasSeal()) return;
+
+        event.setCanceled(true);
+        player.setHealth(player.getMaxHealth());
+        player.removeEffect(MobEffects.DIG_SLOWDOWN);
+        player.setAirSupply(player.getMaxAirSupply());
+        if (!player.getAbilities().instabuild) offhand.shrink(1);
+
+        ElderGuardianSeal def = SealRegistry.ELDER_GUARDIAN;
+        int age = def.minAge() + player.getRandom().nextInt(def.maxAge() - def.minAge() + 1);
+        data.seal(def.id(), age, SealManager.currentDay(player.server));
+
+        if (player.level() instanceof net.minecraft.server.level.ServerLevel level) {
+            SealManager.fx(level, S2CFxPacket.Type.SEAL, elder.getX(), elder.getY() + elder.getBbHeight() / 2,
+                    elder.getZ(), player.getId());
+            level.playSound(null, elder.blockPosition(), SoundEvents.ELDER_GUARDIAN_DEATH, SoundSource.HOSTILE, 1.5F, 0.6F);
+            level.playSound(null, player.blockPosition(), SoundEvents.CONDUIT_ACTIVATE, SoundSource.PLAYERS, 1.0F, 0.6F);
+        }
+        elder.discard();
+        SealManager.screenEffect(player, S2CScreenEffectPacket.Effect.SEAL);
+        player.sendSystemMessage(Component.translatable("message.seals.sealed", def.name(), age).withStyle(ChatFormatting.GOLD));
+        player.sendSystemMessage(Component.translatable("message.seals.elder.sealed").withStyle(ChatFormatting.AQUA));
+        SealManager.sync(player);
+    }
+
+    /** Hijo del mar: las criaturas marinas no te eligen como objetivo... */
+    @SubscribeEvent
+    public static void onTarget(LivingChangeTargetEvent event) {
+        if (event.getNewTarget() instanceof Player p && ElderGuardianSeal.isMarine(event.getEntity())
+                && ElderGuardianSeal.carries(p)) {
+            event.setCanceled(true);
+        }
+    }
+
+    /** ...ni te hacen daño (pinchos, pez globo, rayos). */
+    @SubscribeEvent
+    public static void onMarineAttack(LivingAttackEvent event) {
+        if (event.getEntity() instanceof ServerPlayer p && event.getSource().getEntity() != null
+                && ElderGuardianSeal.isMarine(event.getSource().getEntity()) && ElderGuardianSeal.carries(p)) {
+            event.setCanceled(true);
+        }
+    }
+
+    /** Daño recibido: cada mob sellado puede reaccionar (por ejemplo, las espinas de la forma abisal). */
+    @SubscribeEvent
+    public static void onSealedPlayerHurt(LivingHurtEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        SealData data = SealCapability.get(player);
+        SealDefinition def = data.definition();
+        if (def != null) event.setAmount(def.onPlayerHurt(player, data, event.getSource(), event.getAmount()));
+    }
+
+    /** Mundo interior: clic derecho en la puerta cerrada para que el mob te pida la llave. */
+    @SubscribeEvent
+    public static void onDoorClick(PlayerInteractEvent.RightClickBlock event) {
+        if (!(event.getEntity() instanceof ServerPlayer player) || !InnerWorld.isInside(player)) return;
+        var block = player.level().getBlockState(event.getPos()).getBlock();
+        if (block == ModBlocks.SPIRIT_DOOR.get() || block == ModBlocks.SPIRIT_LATTICE.get() || block == ModBlocks.SPIRIT_FRAME.get()) {
+            BondManager.promptKey(player);
+        }
+    }
 
     @SubscribeEvent
     public static void onDeath(LivingDeathEvent event) {

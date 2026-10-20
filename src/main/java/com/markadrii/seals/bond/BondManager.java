@@ -83,6 +83,18 @@ public final class BondManager {
         }
         data.setLastTalkDay(today(player));
 
+        // Algunos mobs no siempre te contestan (el Elder Guardian, por ejemplo)
+        if (player.getRandom().nextFloat() >= def.talkChance(data)) {
+            Component ignored = def.ignoreLines() > 0
+                    ? Component.translatable(def.textKey() + ".talk.ignore." + player.getRandom().nextInt(def.ignoreLines()))
+                    : Component.translatable("message.seals.talk.silent");
+            ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new S2CSealLinePacket(ignored));
+            player.sendSystemMessage(Component.literal("[").append(def.name()).append("] ").withStyle(ChatFormatting.DARK_AQUA)
+                    .append(ignored.copy().withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC)));
+            SealManager.sync(player);
+            return;
+        }
+
         Component line = def.talkLines() > 0
                 ? Component.translatable(def.textKey() + ".talk." + player.getRandom().nextInt(def.talkLines()))
                 : Component.translatable("message.seals.talk.silent");
@@ -152,7 +164,7 @@ public final class BondManager {
         if (def == null || !data.inInner() || data.fighting()) return;
         InnerMob innerMob = InnerWorld.golemOf(player);
         Mob golem = innerMob == null ? null : innerMob.asMob();
-        if (option != DialogOption.EXIT && option != DialogOption.BYE
+        if (option != DialogOption.EXIT && option != DialogOption.BYE && option != DialogOption.GIVE_KEY
                 && (golem == null || golem.distanceToSqr(player) > 12 * 12)) return;
         if (option.bit != 0 && data.visitDone(option.bit)) return;
 
@@ -163,7 +175,7 @@ public final class BondManager {
             case HOW, FEEL -> {
                 data.markVisit(option.bit);
                 String q = option == DialogOption.HOW ? "how" : "feel";
-                boolean likes = random.nextFloat() < def.likeChance();
+                boolean likes = random.nextFloat() < def.likeChance(data);
                 if (likes) {
                     sendDialog(player, def, Component.translatable(k + q + ".yes." + random.nextInt(3)), options(data, def), false);
                     SealManager.addAffinity(player, data, CHAT_AFFINITY, "affinity.seals.reason.chat");
@@ -220,8 +232,34 @@ public final class BondManager {
             case BYE -> {
                 // El cliente cierra la ventana; no hace falta nada más
             }
+            case GIVE_KEY -> {
+                Item key = def.innerKeyItem();
+                if (key == null || data.innerKeyGiven()) return;
+                if (!takeOne(player, key)) {
+                    sendDialog(player, def, Component.translatable(k + "door.nokey"), keyOptions(), false);
+                    return;
+                }
+                data.setInnerKeyGiven(true);
+                player.level().playSound(null, player.blockPosition(), SoundEvents.CONDUIT_ACTIVATE, SoundSource.PLAYERS, 1.0F, 0.8F);
+                sendDialog(player, def, Component.translatable(k + "door.accepted"), List.of(), true);
+                player.sendSystemMessage(Component.literal("[").append(def.name()).append("] ").withStyle(ChatFormatting.GOLD)
+                        .append(Component.translatable(k + "door.accepted").withStyle(ChatFormatting.WHITE)));
+                InnerWorld.openDoor(player);
+            }
         }
         SealManager.sync(player);
+    }
+
+    /** La puerta está cerrada: el mob te pide lo que necesita para abrirla. */
+    public static void promptKey(ServerPlayer player) {
+        SealData data = SealCapability.get(player);
+        SealDefinition def = data.definition();
+        if (def == null || !data.inInner() || def.innerKeyItem() == null || data.innerKeyGiven()) return;
+        sendDialog(player, def, Component.translatable(def.textKey() + ".inner.door.locked"), keyOptions(), false);
+    }
+
+    private static List<Integer> keyOptions() {
+        return List.of(DialogOption.GIVE_KEY.ordinal(), DialogOption.EXIT.ordinal(), DialogOption.BYE.ordinal());
     }
 
     private static boolean takeOne(Player player, Item item) {

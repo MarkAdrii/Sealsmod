@@ -30,6 +30,8 @@ public final class SealFx {
     private static final float[] GOLD = {1.00F, 0.84F, 0.30F};
     private static final float[] WHITE = {1.00F, 1.00F, 1.00F};
     private static final float[] BLOOD = {0.85F, 0.05F, 0.05F};
+    private static final float[] SEA = {0.20F, 0.70F, 0.65F};
+    private static final float[] SEA_LIGHT = {0.70F, 1.00F, 0.95F};
     private static final float[] EMBER = {1.00F, 0.25F, 0.10F};
     private static final float[] FUR = {0.30F, 0.27F, 0.24F};
 
@@ -60,6 +62,9 @@ public final class SealFx {
             case INSTINCT -> instinct(level, pos);
             case WEREWOLF -> werewolf(level, pos);
             case CLAW -> claw(level, pos, entity);
+            case BEAM_HIT -> burst(level, pos.add(0, entity != null ? entity.getBbHeight() * 0.5 : 1, 0),
+                    LodestoneParticleRegistry.SPARK_PARTICLE, SEA_LIGHT, GOLD, 0.25F, 15, 0.3, 0.3, 30);
+            case ABYSSAL -> abyssal(level, pos);
         }
     }
 
@@ -249,6 +254,24 @@ public final class SealFx {
                         .spawn(level, c.x + t * 0.8 + line * 0.15, c.y - t * 0.8, c.z + line * 0.15);
             }
         }
+    }
+
+    /** Forma abisal / tridente: espiral de burbujas de luz marina. */
+    private static void abyssal(Level level, Vec3 pos) {
+        RandomSource r = level.random;
+        for (int i = 0; i < 50; i++) {
+            double a = i / 50.0 * Math.PI * 6;
+            double h = i / 50.0 * 2.3;
+            WorldParticleBuilder.create(LodestoneParticleRegistry.WISP_PARTICLE)
+                    .setScaleData(GenericParticleData.create(0.25F, 0F).build())
+                    .setTransparencyData(GenericParticleData.create(0.9F, 0F).build())
+                    .setColorData(color(SEA_LIGHT, SEA))
+                    .setLifetime(25 + r.nextInt(10))
+                    .setMotion(0, 0.02, 0)
+                    .enableNoClip()
+                    .spawn(level, pos.x + Math.cos(a) * 0.9, pos.y + h, pos.z + Math.sin(a) * 0.9);
+        }
+        burst(level, pos.add(0, 1, 0), LodestoneParticleRegistry.SPARKLE_PARTICLE, SEA_LIGHT, SEA, 0.2F, 25, 0.08, 0.8, 20);
     }
 
     /**
