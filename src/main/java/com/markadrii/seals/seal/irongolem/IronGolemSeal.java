@@ -56,7 +56,7 @@ public class IronGolemSeal extends SealDefinition {
     public static final int HOLY_COOLDOWN = 20 * 120;  // 120 s
     public static final double HOLY_HEALTH = 100.0;
     public static final double HOLY_ATTACK = 15.0;
-    public static final float FEET_MIN_FALL = 3.0F;
+    public static final float FEET_MIN_FALL = 4.0F;
 
     // --- Estabilidad ---
     public static final int STABILITY_VILLAGER = 10;
