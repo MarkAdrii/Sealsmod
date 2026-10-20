@@ -17,6 +17,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.monster.ElderGuardian;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
 import com.markadrii.seals.seal.SealRegistry;
 import net.minecraft.world.item.ItemStack;
@@ -138,6 +139,15 @@ public final class SealEvents {
         if (event.getEntity() instanceof ServerPlayer p && event.getSource().getEntity() != null
                 && ElderGuardianSeal.isMarine(event.getSource().getEntity()) && ElderGuardianSeal.carries(p)) {
             event.setCanceled(true);
+        }
+    }
+
+    /** ...ni te maldicen con la fatiga minera de los Elder Guardian. */
+    @SubscribeEvent
+    public static void onCurse(MobEffectEvent.Applicable event) {
+        if (event.getEntity() instanceof Player p && event.getEffectInstance().getEffect() == MobEffects.DIG_SLOWDOWN
+                && ElderGuardianSeal.carries(p)) {
+            event.setResult(net.minecraftforge.eventbus.api.Event.Result.DENY);
         }
     }
 
