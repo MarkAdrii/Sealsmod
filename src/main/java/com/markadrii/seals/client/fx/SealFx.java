@@ -50,6 +50,10 @@ public final class SealFx {
             case GOLEM_PUNCH -> golemPunch(level, pos);
             case HOLY_SUMMON -> holySummon(level, pos);
             case HOLY_VANISH -> burst(level, pos.add(0, 1.3, 0), LodestoneParticleRegistry.WISP_PARTICLE, HOLY_LIGHT, HOLY, 0.35F, 30, 0.08, 0.9, 40);
+            case DOOR_DUST -> doorDust(level, pos);
+            case TOUCH_GROUND -> touchGround(level, pos);
+            case BOND -> bond(level, pos);
+            case RELEASE -> release(level, pos);
         }
     }
 
@@ -156,6 +160,107 @@ public final class SealFx {
                     .spawn(level, pos.x + Math.cos(a) * 1.0, pos.y + h, pos.z + Math.sin(a) * 1.0);
         }
         burst(level, pos.add(0, 1.4, 0), LodestoneParticleRegistry.STAR_PARTICLE, WHITE, HOLY, 0.3F, 30, 0.1, 0.8, 15);
+    }
+
+    /** Polvo de luz dorada al abrirse una columna de la puerta. */
+    private static void doorDust(Level level, Vec3 pos) {
+        RandomSource r = level.random;
+        for (int i = 0; i < 20; i++) {
+            double y = pos.y + (r.nextDouble() - 0.5) * 18;
+            WorldParticleBuilder.create(LodestoneParticleRegistry.WISP_PARTICLE)
+                    .setScaleData(GenericParticleData.create(0.4F, 0F).build())
+                    .setTransparencyData(GenericParticleData.create(0.8F, 0F).build())
+                    .setColorData(color(GOLD, WHITE))
+                    .setLifetime(30 + r.nextInt(20))
+                    .setMotion((r.nextDouble() - 0.5) * 0.05, 0.01, -0.03 - r.nextDouble() * 0.05)
+                    .enableNoClip()
+                    .spawn(level, pos.x, y, pos.z);
+        }
+    }
+
+    /** El jugador toca el suelo: ondas metálicas y chispas donde aparece el mini golem. */
+    private static void touchGround(Level level, Vec3 pos) {
+        Vec3 p = pos.add(0, 0.05, 0);
+        ring(level, p, LodestoneParticleRegistry.WISP_PARTICLE, IRON, GOLD, 1.2, 24, 0.15F);
+        burst(level, pos.add(0, 0.4, 0), LodestoneParticleRegistry.SPARKLE_PARTICLE, WHITE, IRON, 0.2F, 18, 0.08, 0.3, 16);
+    }
+
+    /** BOUND: columna de luz dorada que envuelve al jugador. */
+    private static void bond(Level level, Vec3 pos) {
+        RandomSource r = level.random;
+        for (int i = 0; i < 60; i++) {
+            double a = i / 60.0 * Math.PI * 6;
+            double h = i / 60.0 * 2.5;
+            WorldParticleBuilder.create(LodestoneParticleRegistry.WISP_PARTICLE)
+                    .setScaleData(GenericParticleData.create(0.35F, 0F).build())
+                    .setTransparencyData(GenericParticleData.create(0.9F, 0F).build())
+                    .setColorData(color(GOLD, POPPY))
+                    .setLifetime(30 + r.nextInt(10))
+                    .setMotion(0, 0.03, 0)
+                    .enableNoClip()
+                    .spawn(level, pos.x + Math.cos(a) * 0.8, pos.y + h, pos.z + Math.sin(a) * 0.8);
+        }
+        levelUp(level, pos);
+    }
+
+    /** El sello se rompe en paz: pétalos y luz. */
+    private static void release(Level level, Vec3 pos) {
+        burst(level, pos.add(0, 1, 0), LodestoneParticleRegistry.WISP_PARTICLE, GOLD, WHITE, 0.4F, 40, 0.06, 1.0, 40);
+        burst(level, pos.add(0, 1, 0), LodestoneParticleRegistry.SPARKLE_PARTICLE, POPPY, GOLD, 0.25F, 40, 0.08, 1.2, 30);
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // Mundo interior
+    // ---------------------------------------------------------------------------------------
+
+    /** Niebla dorada y rayos de luz que salen de la puerta. */
+    public static void innerAmbient(Level level, net.minecraft.core.BlockPos door, Player player) {
+        RandomSource r = level.random;
+        // Niebla baja sobre el agua, más densa cerca de la puerta
+        for (int i = 0; i < 3; i++) {
+            double x = door.getX() + (r.nextDouble() - 0.5) * 30;
+            double z = door.getZ() - r.nextDouble() * 40;
+            float near = (float) Math.max(0.15, 1.0 - (door.getZ() - z) / 40.0);
+            WorldParticleBuilder.create(LodestoneParticleRegistry.SMOKE_PARTICLE)
+                    .setScaleData(GenericParticleData.create(1.5F, 2.5F).build())
+                    .setTransparencyData(GenericParticleData.create(0F, 0.12F * near, 0F).build())
+                    .setColorData(color(GOLD, RUST))
+                    .setLifetime(80 + r.nextInt(40))
+                    .setMotion((r.nextDouble() - 0.5) * 0.01, 0.002, -0.01)
+                    .enableNoClip()
+                    .spawn(level, x, door.getY() - 9.5 + r.nextDouble() * 1.5, z);
+        }
+        // Destellos que flotan delante de la puerta
+        if (r.nextInt(2) == 0) {
+            double x = door.getX() + (r.nextDouble() - 0.5) * 14;
+            double y = door.getY() + (r.nextDouble() - 0.5) * 18;
+            WorldParticleBuilder.create(LodestoneParticleRegistry.WISP_PARTICLE)
+                    .setScaleData(GenericParticleData.create(0.25F, 0F).build())
+                    .setTransparencyData(GenericParticleData.create(0F, 0.7F, 0F).build())
+                    .setColorData(color(GOLD, WHITE))
+                    .setLifetime(60 + r.nextInt(30))
+                    .setMotion(0, 0.005, -0.04)
+                    .enableNoClip()
+                    .spawn(level, x, y, door.getZ() - 0.5);
+        }
+    }
+
+    /** Onda en el agua bajo los pies al caminar. */
+    public static void footRipple(Player player) {
+        Level level = player.level();
+        double y = Math.floor(player.getY()) + 0.02;
+        for (int i = 0; i < 12; i++) {
+            double a = i / 12.0 * Math.PI * 2;
+            double cos = Math.cos(a), sin = Math.sin(a);
+            WorldParticleBuilder.create(LodestoneParticleRegistry.WISP_PARTICLE)
+                    .setScaleData(GenericParticleData.create(0.12F, 0.05F).build())
+                    .setTransparencyData(GenericParticleData.create(0.5F, 0F).build())
+                    .setColorData(color(GOLD, RUST))
+                    .setLifetime(20)
+                    .setMotion(cos * 0.05, 0, sin * 0.05)
+                    .enableNoClip()
+                    .spawn(level, player.getX() + cos * 0.2, y, player.getZ() + sin * 0.2);
+        }
     }
 
     // ---------------------------------------------------------------------------------------

@@ -10,16 +10,26 @@ import java.util.concurrent.ConcurrentHashMap;
  * En el servidor se lee de los datos del sello; en el cliente, de lo que envía el servidor.
  */
 public final class SealVisuals {
-    public record Flags(boolean manto, boolean golemForm) {}
+    public record Flags(boolean manto, boolean golemForm, boolean shoulder) {}
 
     /** Solo se usa en el cliente: id de entidad → estado. */
     private static final Map<Integer, Flags> CLIENT = new ConcurrentHashMap<>();
 
     private SealVisuals() {}
 
-    public static void setClient(int entityId, boolean manto, boolean golemForm) {
-        if (!manto && !golemForm) CLIENT.remove(entityId);
-        else CLIENT.put(entityId, new Flags(manto, golemForm));
+    public static void setClient(int entityId, boolean manto, boolean golemForm, boolean shoulder) {
+        if (!manto && !golemForm && !shoulder) CLIENT.remove(entityId);
+        else CLIENT.put(entityId, new Flags(manto, golemForm, shoulder));
+    }
+
+    /** ¿Lleva el mini golem en el hombro? */
+    public static boolean shoulder(Player player) {
+        if (player.level().isClientSide) {
+            Flags f = CLIENT.get(player.getId());
+            return f != null && f.shoulder();
+        }
+        SealData d = SealCapability.get(player);
+        return d.miniOut() && d.miniOnShoulder();
     }
 
     public static void clearClient() {

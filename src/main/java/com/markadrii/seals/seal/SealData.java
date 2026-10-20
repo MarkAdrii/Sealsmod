@@ -30,6 +30,26 @@ public class SealData {
     private int holyCooldown;
     private int abilityUseTicks;
 
+    // --- Vínculo (hablar, mundo interior, boost) ---
+    private long lastTalkDay = -100;
+    private long lastEnterDay = -100;
+    private long lastBondDay = -100;
+    private int visitFlags;            // opciones ya usadas en la visita actual al mundo interior
+    private boolean inInner;           // está dentro del mundo interior
+    private String returnDim = "";
+    private double returnX, returnY, returnZ;
+    private float returnYaw;
+    private int boostTicks;            // boost del vínculo (BOUND)
+    private boolean fighting;          // peleando con el mob en el mundo interior
+
+    // --- Mini golem ---
+    private boolean miniOut;           // el mini golem está invocado (en el mundo o en el hombro)
+    private boolean miniOnShoulder;
+    @Nullable private UUID miniId;
+
+    /** Solo para el cliente: el día actual de Minecraft (lo rellena el servidor al sincronizar). */
+    private long today;
+
     public boolean hasSeal() {
         return sealType != null;
     }
@@ -62,6 +82,16 @@ public class SealData {
         holyGolem = null;
         holyCooldown = 0;
         abilityUseTicks = 0;
+        lastTalkDay = -100;
+        lastEnterDay = -100;
+        lastBondDay = -100;
+        visitFlags = 0;
+        boostTicks = 0;
+        fighting = false;
+        miniOut = false;
+        miniOnShoulder = false;
+        miniId = null;
+        // inInner y el punto de vuelta se conservan: hacen falta para sacar al jugador
     }
 
     public int ageYears() {
@@ -94,6 +124,22 @@ public class SealData {
         if (holyGolem != null) tag.putUUID("holyGolem", holyGolem);
         tag.putInt("holyCooldown", holyCooldown);
         tag.putInt("abilityUseTicks", abilityUseTicks);
+        tag.putLong("lastTalkDay", lastTalkDay);
+        tag.putLong("lastEnterDay", lastEnterDay);
+        tag.putLong("lastBondDay", lastBondDay);
+        tag.putInt("visitFlags", visitFlags);
+        tag.putBoolean("inInner", inInner);
+        tag.putString("returnDim", returnDim);
+        tag.putDouble("returnX", returnX);
+        tag.putDouble("returnY", returnY);
+        tag.putDouble("returnZ", returnZ);
+        tag.putFloat("returnYaw", returnYaw);
+        tag.putInt("boostTicks", boostTicks);
+        tag.putBoolean("fighting", fighting);
+        tag.putBoolean("miniOut", miniOut);
+        tag.putBoolean("miniOnShoulder", miniOnShoulder);
+        if (miniId != null) tag.putUUID("miniId", miniId);
+        tag.putLong("today", today);
         return tag;
     }
 
@@ -113,6 +159,22 @@ public class SealData {
         holyGolem = tag.hasUUID("holyGolem") ? tag.getUUID("holyGolem") : null;
         holyCooldown = tag.getInt("holyCooldown");
         abilityUseTicks = tag.getInt("abilityUseTicks");
+        lastTalkDay = tag.contains("lastTalkDay") ? tag.getLong("lastTalkDay") : -100;
+        lastEnterDay = tag.contains("lastEnterDay") ? tag.getLong("lastEnterDay") : -100;
+        lastBondDay = tag.contains("lastBondDay") ? tag.getLong("lastBondDay") : -100;
+        visitFlags = tag.getInt("visitFlags");
+        inInner = tag.getBoolean("inInner");
+        returnDim = tag.getString("returnDim");
+        returnX = tag.getDouble("returnX");
+        returnY = tag.getDouble("returnY");
+        returnZ = tag.getDouble("returnZ");
+        returnYaw = tag.getFloat("returnYaw");
+        boostTicks = tag.getInt("boostTicks");
+        fighting = tag.getBoolean("fighting");
+        miniOut = tag.getBoolean("miniOut");
+        miniOnShoulder = tag.getBoolean("miniOnShoulder");
+        miniId = tag.hasUUID("miniId") ? tag.getUUID("miniId") : null;
+        today = tag.getLong("today");
     }
 
     // --- Getters / setters ---
@@ -151,4 +213,41 @@ public class SealData {
     public void setHolyCooldown(int t) { this.holyCooldown = t; }
     public int abilityUseTicks() { return abilityUseTicks; }
     public void setAbilityUseTicks(int t) { this.abilityUseTicks = t; }
+
+    public long lastTalkDay() { return lastTalkDay; }
+    public void setLastTalkDay(long d) { this.lastTalkDay = d; }
+    public long lastEnterDay() { return lastEnterDay; }
+    public void setLastEnterDay(long d) { this.lastEnterDay = d; }
+    public long lastBondDay() { return lastBondDay; }
+    public void setLastBondDay(long d) { this.lastBondDay = d; }
+    public int visitFlags() { return visitFlags; }
+    public void setVisitFlags(int f) { this.visitFlags = f; }
+    public boolean visitDone(int bit) { return (visitFlags & bit) != 0; }
+    public void markVisit(int bit) { this.visitFlags |= bit; }
+    public boolean inInner() { return inInner; }
+    public void setInInner(boolean v) { this.inInner = v; }
+    public String returnDim() { return returnDim; }
+    public double returnX() { return returnX; }
+    public double returnY() { return returnY; }
+    public double returnZ() { return returnZ; }
+    public float returnYaw() { return returnYaw; }
+    public void setReturn(String dim, double x, double y, double z, float yaw) {
+        this.returnDim = dim;
+        this.returnX = x;
+        this.returnY = y;
+        this.returnZ = z;
+        this.returnYaw = yaw;
+    }
+    public int boostTicks() { return boostTicks; }
+    public void setBoostTicks(int t) { this.boostTicks = t; }
+    public boolean fighting() { return fighting; }
+    public void setFighting(boolean v) { this.fighting = v; }
+    public boolean miniOut() { return miniOut; }
+    public void setMiniOut(boolean v) { this.miniOut = v; }
+    public boolean miniOnShoulder() { return miniOnShoulder; }
+    public void setMiniOnShoulder(boolean v) { this.miniOnShoulder = v; }
+    @Nullable public UUID miniId() { return miniId; }
+    public void setMiniId(@Nullable UUID id) { this.miniId = id; }
+    public long today() { return today; }
+    public void setToday(long d) { this.today = d; }
 }

@@ -91,6 +91,47 @@ public abstract class SealDefinition {
     public void onSealBroken(ServerPlayer player, SealData data) {}
 
     // ---------------------------------------------------------------------------------------
+    // Vínculo: hablar, mundo interior, mini invocación
+    // ---------------------------------------------------------------------------------------
+
+    /** Cuántas frases distintas dice al pulsar Hablar (claves "seal.seals.<mob>.talk.0", ".1"...). */
+    public int talkLines() {
+        return 0;
+    }
+
+    /** Probabilidad de que le caigas bien al preguntarle cómo está (0-1). */
+    public float likeChance() {
+        return 0.9F;
+    }
+
+    /** Su comida favorita (se le puede ofrecer en el mundo interior). */
+    @org.jetbrains.annotations.Nullable
+    public net.minecraft.world.item.Item favoriteFood() {
+        return null;
+    }
+
+    /** Vida y daño base del mob en el mundo interior (se multiplican por la edad). */
+    public double innerHealth() { return 150.0; }
+    public double innerAttack() { return 10.0; }
+
+    /** Nivel necesario para invocar su versión mini (-1 = no tiene). */
+    public int miniUnlockLevel() {
+        return -1;
+    }
+
+    /** Crea la mini invocación (o null si no tiene). */
+    @org.jetbrains.annotations.Nullable
+    public net.minecraft.world.entity.Mob createMini(ServerPlayer player, SealData data) {
+        return null;
+    }
+
+    /** Se rompe el sello en paz: el mob sale al mundo, amistoso. */
+    public void onPeacefulRelease(ServerPlayer player, SealData data) {}
+
+    /** Quita las recargas de las habilidades (durante el boost del vínculo). */
+    public void resetCooldowns(SealData data) {}
+
+    // ---------------------------------------------------------------------------------------
     // Información para la interfaz
     // ---------------------------------------------------------------------------------------
 

@@ -1,6 +1,9 @@
 package com.markadrii.seals.client.gui;
 
+import com.markadrii.seals.bond.BondManager;
 import com.markadrii.seals.client.ClientSealData;
+import com.markadrii.seals.network.C2SSealActionPacket;
+import com.markadrii.seals.network.ModNetwork;
 import com.markadrii.seals.client.KeyBindings;
 import com.markadrii.seals.seal.AgeStage;
 import com.markadrii.seals.seal.SealAbility;
@@ -55,6 +58,7 @@ public class SealScreen extends Screen {
 
     @Override
     protected void init() {
+        ClientSealData.setLastLine(null);
         w = Math.min(width - 12, 500);
         h = Math.min(height - 12, 280);
         x0 = (width - w) / 2;
@@ -240,6 +244,9 @@ public class SealScreen extends Screen {
             SealAbility a = def.abilities().get(i);
             if (a.kind() != SealAbility.Kind.PASSIVE && def.abilityActive(data, i)) active.add(a.name());
         }
+        if (data.boostTicks() > 0) {
+            active.add(0, Component.translatable("screen.seals.phase.boost", (data.boostTicks() + 1199) / 1200));
+        }
         if (active.isEmpty()) return Component.translatable("screen.seals.phase.rest");
         Component out = active.get(0).copy();
         for (int i = 1; i < active.size(); i++) out = out.copy().append(" + ").append(active.get(i));
@@ -296,6 +303,13 @@ public class SealScreen extends Screen {
                 paragraphs.add(Component.translatable("info.seals.age", def.minAge(), def.maxAge()));
             }
             default -> {
+                Component said = ClientSealData.lastLine();
+                if (said != null) {
+                    title = Component.translatable("info.seals.said", def.name());
+                    paragraphs.add(Component.literal("«").append(said).append("»"));
+                    paragraphs.add(Component.translatable("info.seals.talk.hint"));
+                    break;
+                }
                 title = Component.translatable("info.seals.bond.title");
                 paragraphs.add(Component.translatable(k + ".bond"));
                 paragraphs.add(Component.translatable("info.seals.bond.hint"));
@@ -452,10 +466,9 @@ public class SealScreen extends Screen {
 
     // --- Pie ---------------------------------------------------------------------------
 
-    private int[] combatBtn() {
-        Component label = Component.translatable("screen.seals.button.combat");
-        int bw = font.width(label) + 16;
-        return new int[]{x0 + 6, y0 + h - FOOTER + 4, bw, 16};
+    /** Botón del pie de la ventana. */
+    private record Btn(String id, Component label, boolean enabled, Component tip, int x, int y, int w, int h) {
+        int[] rect() { return new int[]{x, y, w, h}; }
     }
 
     private int[] closeBtn() {
@@ -464,9 +477,58 @@ public class SealScreen extends Screen {
         return new int[]{x0 + w - 6 - bw, y0 + h - FOOTER + 4, bw, 16};
     }
 
+    /** Hablar (siempre), Entrar (1 estrella) e Invocar (2 estrellas, si el mob tiene mini). */
+    private List<Btn> footerButtons() {
+        SealData data = ClientSealData.get();
+        SealDefinition def = data.definition();
+        List<Btn> list = new ArrayList<>();
+        if (def == null) return list;
+        long today = data.today();
+        int bx = x0 + 6;
+        int by = y0 + h - FOOTER + 4;
+
+        // Hablar
+        long talkLeft = BondManager.daysLeft(today, data.lastTalkDay(), BondManager.TALK_DAYS);
+        Component talk = Component.translatable("screen.seals.button.talk");
+        int tw = font.width(talk) + 16;
+        list.add(new Btn("talk", talk, talkLeft == 0, Component.translatable("screen.seals.tip.talk"), bx, by, tw, 16));
+        bx += tw + 6;
+
+        // Entrar
+        if (data.level() >= BondManager.ENTER_LEVEL) {
+            long enterLeft = BondManager.daysLeft(today, data.lastEnterDay(), BondManager.ENTER_DAYS);
+            Component enter = Component.translatable("screen.seals.button.enter");
+            int ew = font.width(enter) + 16;
+            Component tip = data.inInner() ? Component.translatable("screen.seals.tip.inside")
+                    : Component.translatable("screen.seals.tip.days", enterLeft);
+            list.add(new Btn("enter", enter, enterLeft == 0 && !data.inInner(), tip, bx, by, ew, 16));
+            bx += ew + 6;
+        }
+
+        // Invocar / Desinvocar
+        if (def.miniUnlockLevel() > 0 && data.level() >= def.miniUnlockLevel()) {
+            Component mini = Component.translatable(data.miniOut() ? "screen.seals.button.unsummon" : "screen.seals.button.summon");
+            int mw2 = font.width(mini) + 16;
+            boolean ok = data.miniOut() || !data.inInner();
+            list.add(new Btn("mini", mini, ok, Component.translatable("screen.seals.tip.inside"), bx, by, mw2, 16));
+        }
+        return list;
+    }
+
     private void drawFooter(GuiGraphics g, SealTheme t, int mouseX, int mouseY) {
-        button(g, combatBtn(), Component.translatable("screen.seals.button.combat"), t, mouseX, mouseY);
+        Btn hovered = null;
+        for (Btn b : footerButtons()) {
+            if (b.enabled()) {
+                button(g, b.rect(), b.label(), t, mouseX, mouseY);
+            } else {
+                g.fill(b.x() - 1, b.y() - 1, b.x() + b.w() + 1, b.y() + b.h() + 1, t.border());
+                g.fill(b.x(), b.y(), b.x() + b.w(), b.y() + b.h(), 0xFF55585B);
+                g.drawString(font, b.label(), b.x() + b.w() / 2 - font.width(b.label()) / 2, b.y() + 4, 0xFF9A9A9A, false);
+                if (hover(mouseX, mouseY, b.x(), b.y(), b.w(), b.h())) hovered = b;
+            }
+        }
         button(g, closeBtn(), Component.translatable("screen.seals.button.close"), t, mouseX, mouseY);
+        if (hovered != null) g.renderTooltip(font, hovered.tip(), mouseX, mouseY);
     }
 
     private void button(GuiGraphics g, int[] r, Component label, SealTheme t, int mouseX, int mouseY) {
@@ -504,11 +566,18 @@ public class SealScreen extends Screen {
                 onClose();
                 return true;
             }
-            int[] cb = combatBtn();
-            if (hover(mouseX, mouseY, cb[0], cb[1], cb[2], cb[3])) {
+            for (Btn b : footerButtons()) {
+                if (!b.enabled() || !hover(mouseX, mouseY, b.x(), b.y(), b.w(), b.h())) continue;
                 click();
-                ClientSealData.setCombatMode(true);
-                onClose();
+                switch (b.id()) {
+                    case "talk" -> ModNetwork.CHANNEL.sendToServer(new C2SSealActionPacket(C2SSealActionPacket.Action.TALK));
+                    case "enter" -> {
+                        ModNetwork.CHANNEL.sendToServer(new C2SSealActionPacket(C2SSealActionPacket.Action.ENTER));
+                        onClose();
+                    }
+                    case "mini" -> ModNetwork.CHANNEL.sendToServer(new C2SSealActionPacket(C2SSealActionPacket.Action.TOGGLE_MINI));
+                    default -> {}
+                }
                 return true;
             }
             // Arrastrar el modelo 3D

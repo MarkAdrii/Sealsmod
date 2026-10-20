@@ -5,6 +5,13 @@ import com.markadrii.seals.client.anim.SealAnimations;
 import com.markadrii.seals.client.gui.CombatHud;
 import com.markadrii.seals.client.render.HolyGolemRenderer;
 import com.markadrii.seals.client.render.MantoLayer;
+import com.markadrii.seals.client.render.ScaledGolemRenderer;
+import com.markadrii.seals.client.render.ShoulderGolemLayer;
+import com.markadrii.seals.client.render.InnerWorldEffects;
+import com.markadrii.seals.entity.InnerGolemEntity;
+import com.markadrii.seals.entity.MiniGolemEntity;
+import com.markadrii.seals.world.InnerWorld;
+import net.minecraftforge.client.event.RegisterDimensionSpecialEffectsEvent;
 import com.markadrii.seals.registry.ModEntities;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
@@ -36,6 +43,10 @@ public final class ClientModEvents {
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.HOLY_GOLEM.get(), HolyGolemRenderer::new);
+        event.registerEntityRenderer(ModEntities.MINI_GOLEM.get(),
+                ctx -> new ScaledGolemRenderer<>(ctx, MiniGolemEntity.RENDER_SCALE));
+        event.registerEntityRenderer(ModEntities.INNER_GOLEM.get(),
+                ctx -> new ScaledGolemRenderer<>(ctx, InnerGolemEntity.RENDER_SCALE));
     }
 
     @SubscribeEvent
@@ -44,8 +55,14 @@ public final class ClientModEvents {
             LivingEntityRenderer<?, ?> renderer = event.getSkin(skin);
             if (renderer instanceof PlayerRenderer playerRenderer) {
                 playerRenderer.addLayer(new MantoLayer(playerRenderer));
+                playerRenderer.addLayer(new ShoulderGolemLayer(playerRenderer, event.getEntityModels()));
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void registerDimensionEffects(RegisterDimensionSpecialEffectsEvent event) {
+        event.register(InnerWorld.KEY.location(), new InnerWorldEffects());
     }
 
     @SubscribeEvent

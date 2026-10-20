@@ -17,10 +17,25 @@ public final class ClientPacketHandler {
     }
 
     public static void visual(S2CVisualPacket msg) {
-        SealVisuals.setClient(msg.entityId(), msg.manto(), msg.golemForm());
+        SealVisuals.setClient(msg.entityId(), msg.manto(), msg.golemForm(), msg.shoulder());
         if (Minecraft.getInstance().level != null) {
             Entity entity = Minecraft.getInstance().level.getEntity(msg.entityId());
             if (entity != null) entity.refreshDimensions();
+        }
+    }
+
+    public static void dialog(S2CDialogPacket msg) {
+        com.markadrii.seals.client.gui.InnerDialogScreen.receive(msg);
+    }
+
+    public static void sealLine(S2CSealLinePacket msg) {
+        ClientSealData.setLastLine(msg.line());
+    }
+
+    public static void innerWorld(S2CInnerWorldPacket msg) {
+        ClientSealData.setInner(msg.inside(), msg.doorX(), msg.doorY(), msg.doorZ());
+        if (!msg.inside() && Minecraft.getInstance().screen instanceof com.markadrii.seals.client.gui.InnerDialogScreen) {
+            Minecraft.getInstance().setScreen(null);
         }
     }
 

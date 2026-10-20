@@ -180,6 +180,52 @@ public class IronGolemSeal extends SealDefinition {
     }
 
     // ---------------------------------------------------------------------------------------
+    // Vínculo
+    // ---------------------------------------------------------------------------------------
+
+    public static final double MINI_HEALTH = 40.0;
+    public static final double MINI_ATTACK = 6.0;
+
+    @Override public int talkLines() { return 10; }
+    @Override public float likeChance() { return 0.9F; }
+
+    /** A un golem lo reparan los lingotes de hierro: es lo más parecido a su comida favorita. */
+    @Override public net.minecraft.world.item.Item favoriteFood() { return net.minecraft.world.item.Items.IRON_INGOT; }
+
+    /** Mini golem a partir de 2 estrellas. */
+    @Override public int miniUnlockLevel() { return 3; }
+
+    @Override
+    public net.minecraft.world.entity.Mob createMini(ServerPlayer player, SealData data) {
+        var mini = ModEntities.MINI_GOLEM.get().create(player.serverLevel());
+        if (mini == null) return null;
+        float s = data.ageScale();
+        mini.setup(player, MINI_HEALTH * s, MINI_ATTACK * s);
+        return mini;
+    }
+
+    /** El golem sale del sello contigo, como un golem amigo. */
+    @Override
+    public void onPeacefulRelease(ServerPlayer player, SealData data) {
+        ServerLevel level = player.serverLevel();
+        IronGolem golem = EntityType.IRON_GOLEM.create(level);
+        if (golem == null) return;
+        Vec3 look = player.getLookAngle().multiply(1, 0, 1).normalize();
+        golem.moveTo(player.getX() + look.x * 2, player.getY(), player.getZ() + look.z * 2, player.getYRot() + 180, 0);
+        golem.setPlayerCreated(true);
+        golem.setPersistenceRequired();
+        level.addFreshEntity(golem);
+        level.playSound(null, golem.blockPosition(), SoundEvents.IRON_GOLEM_REPAIR, SoundSource.NEUTRAL, 1.2F, 0.8F);
+    }
+
+    @Override
+    public void resetCooldowns(SealData data) {
+        data.setGolemFormCooldown(0);
+        data.setHolyCooldown(0);
+        if (data.golemForm()) data.setGolemFormTicks(Math.max(data.golemFormTicks(), 40));
+    }
+
+    // ---------------------------------------------------------------------------------------
     // Información para la interfaz
     // ---------------------------------------------------------------------------------------
 
@@ -273,7 +319,8 @@ public class IronGolemSeal extends SealDefinition {
                     teammate ? "stability.seals.reason.teammate" : "stability.seals.reason.player");
         } else if (victim instanceof OwnableEntity pet && player.getUUID().equals(pet.getOwnerUUID())) {
             SealManager.damageStability(player, data, STABILITY_ALLY, "stability.seals.reason.pet");
-        } else if (victim instanceof IronGolem && !(victim instanceof HolyGolemEntity)) {
+        } else if (victim instanceof IronGolem && !(victim instanceof com.markadrii.seals.entity.OwnedGolemEntity)
+                && !(victim instanceof com.markadrii.seals.entity.InnerGolemEntity)) {
             SealManager.damageStability(player, data, STABILITY_ALLY, "stability.seals.reason.golem");
         }
     }

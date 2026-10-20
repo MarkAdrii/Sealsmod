@@ -4,6 +4,11 @@ import com.markadrii.seals.Seals;
 import com.markadrii.seals.client.fx.SealFx;
 import com.markadrii.seals.client.gui.SealScreen;
 import com.markadrii.seals.network.C2SAbilityPacket;
+import com.markadrii.seals.network.C2SSealActionPacket;
+import com.markadrii.seals.world.InnerWorld;
+import net.minecraft.world.InteractionHand;
+import net.minecraftforge.client.event.ViewportEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import com.markadrii.seals.network.ModNetwork;
 import com.markadrii.seals.seal.SealVisuals;
 import com.markadrii.seals.seal.irongolem.IronGolemSeal;
@@ -42,6 +47,43 @@ public final class ClientForgeEvents {
             for (Player p : mc.level.players()) {
                 if (SealVisuals.manto(p) && !p.isInvisible()) SealFx.mantoAmbient(p);
             }
+            // Mundo interior: niebla dorada y ondas al caminar
+            if (mc.level.dimension() == InnerWorld.KEY && ClientSealData.inInner()) {
+                SealFx.innerAmbient(mc.level, ClientSealData.innerDoor(), mc.player);
+                boolean walking = mc.player.onGround() && mc.player.getDeltaMovement().horizontalDistanceSqr() > 0.002;
+                if (walking && mc.player.tickCount % 6 == 0) SealFx.footRipple(mc.player);
+            }
+        }
+    }
+
+    // --- Mundo interior: todo negro con niebla ------------------------------------------
+
+    @SubscribeEvent
+    public static void onFogColor(ViewportEvent.ComputeFogColor event) {
+        if (event.getCamera().getEntity().level().dimension() == InnerWorld.KEY) {
+            event.setRed(0.0F);
+            event.setGreen(0.0F);
+            event.setBlue(0.0F);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onFog(ViewportEvent.RenderFog event) {
+        if (event.getCamera().getEntity().level().dimension() == InnerWorld.KEY) {
+            event.setNearPlaneDistance(4.0F);
+            event.setFarPlaneDistance(80.0F);
+            event.setCanceled(true);
+        }
+    }
+
+    // --- Mini golem: shift + clic derecho en el aire con la mano vacía lo baja del hombro ---
+
+    @SubscribeEvent
+    public static void onRightClickEmpty(PlayerInteractEvent.RightClickEmpty event) {
+        Player p = event.getEntity();
+        if (event.getHand() == InteractionHand.MAIN_HAND && p.isShiftKeyDown() && p.getMainHandItem().isEmpty()
+                && SealVisuals.shoulder(p)) {
+            ModNetwork.CHANNEL.sendToServer(new C2SSealActionPacket(C2SSealActionPacket.Action.MINI_DOWN));
         }
     }
 

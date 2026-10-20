@@ -21,7 +21,11 @@ public record S2CFxPacket(Type type, double x, double y, double z, int entityId)
         GOLEM_FORM_OFF,
         GOLEM_PUNCH,
         HOLY_SUMMON,
-        HOLY_VANISH
+        HOLY_VANISH,
+        DOOR_DUST,     // la puerta del mundo interior se abre
+        TOUCH_GROUND,  // el jugador toca el suelo para invocar al mini golem
+        BOND,          // se fortalece el vínculo (BOUND)
+        RELEASE        // el sello se rompe en paz
     }
 
     public static void encode(S2CFxPacket msg, FriendlyByteBuf buf) {

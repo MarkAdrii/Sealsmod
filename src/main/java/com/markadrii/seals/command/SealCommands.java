@@ -1,7 +1,9 @@
 package com.markadrii.seals.command;
 
 import com.markadrii.seals.Seals;
+import com.markadrii.seals.bond.BondManager;
 import com.markadrii.seals.seal.AgeStage;
+import com.markadrii.seals.world.InnerWorld;
 import com.markadrii.seals.seal.OldestOneData;
 import com.markadrii.seals.seal.SealCapability;
 import com.markadrii.seals.seal.SealData;
@@ -97,6 +99,10 @@ public final class SealCommands {
                 .then(Commands.literal("stars")
                         .then(withAmount("set", 0, 100, SealCommands::starsSet))
                         .then(withAmount("add", -100, 100, SealCommands::starsAdd)))
+
+                // /seals cooldowns reset [jugadores]: permite volver a hablar, entrar y usar BOUND
+                .then(Commands.literal("cooldowns")
+                        .then(withTargets(Commands.literal("reset"), SealCommands::cooldownsReset)))
 
                 // /seals oldestone [reset]
                 .then(Commands.literal("oldestone")
@@ -195,6 +201,8 @@ public final class SealCommands {
         return apply(ctx.getSource(), players, (src, player) -> {
             SealData data = SealCapability.get(player);
             if (data.definition() != null) {
+                if (data.inInner()) InnerWorld.exit(player, data);
+                BondManager.despawnMini(player, data);
                 data.definition().deactivateAll(player, data);
                 SealManager.onSealLost(player, data);
             }
@@ -213,6 +221,8 @@ public final class SealCommands {
         SealData data = requireSeal(source, player);
         if (data == null) return false;
         Component name = data.definition().name();
+        if (data.inInner()) InnerWorld.exit(player, data);
+        BondManager.despawnMini(player, data);
         data.definition().deactivateAll(player, data);
         SealManager.onSealLost(player, data);
         data.clearSeal();
@@ -292,6 +302,19 @@ public final class SealCommands {
         data.setAffinity(0);
         SealManager.sync(player);
         ok(source, Component.translatable("command.seals.stars", player.getDisplayName(), newLevel - 1, def.maxStars()));
+        return true;
+    }
+
+    private static boolean cooldownsReset(CommandSourceStack source, ServerPlayer player) {
+        SealData data = requireSeal(source, player);
+        if (data == null) return false;
+        data.setLastTalkDay(-100);
+        data.setLastEnterDay(-100);
+        data.setLastBondDay(-100);
+        data.setGolemFormCooldown(0);
+        data.setHolyCooldown(0);
+        SealManager.sync(player);
+        ok(source, Component.translatable("command.seals.cooldowns", player.getDisplayName()));
         return true;
     }
 

@@ -35,6 +35,7 @@ public final class SealManager {
     public static void sync(ServerPlayer player) {
         SealData data = SealCapability.get(player);
         updateRecord(player, data);
+        data.setToday(currentDay(player.server));
         ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new S2CSyncSealPacket(data.save()));
         syncVisual(player);
     }
@@ -43,14 +44,14 @@ public final class SealManager {
     public static void syncVisual(ServerPlayer player) {
         SealData data = SealCapability.get(player);
         ModNetwork.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),
-                new S2CVisualPacket(player.getId(), data.manto(), data.golemForm()));
+                new S2CVisualPacket(player.getId(), data.manto(), data.golemForm(), data.miniOut() && data.miniOnShoulder()));
         player.refreshDimensions();
     }
 
     public static void syncVisualTo(ServerPlayer target, ServerPlayer viewer) {
         SealData data = SealCapability.get(target);
         ModNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> viewer),
-                new S2CVisualPacket(target.getId(), data.manto(), data.golemForm()));
+                new S2CVisualPacket(target.getId(), data.manto(), data.golemForm(), data.miniOut() && data.miniOnShoulder()));
     }
 
     public static void fx(ServerLevel level, S2CFxPacket.Type type, double x, double y, double z, int entityId) {
@@ -146,6 +147,8 @@ public final class SealManager {
     public static void breakSeal(ServerPlayer player, SealData data) {
         SealDefinition def = data.definition();
         if (def == null) return;
+        if (data.inInner()) com.markadrii.seals.world.InnerWorld.exit(player, data);
+        com.markadrii.seals.bond.BondManager.despawnMini(player, data);
         def.deactivateAll(player, data);
         player.sendSystemMessage(Component.translatable("message.seals.seal_broken", def.name())
                 .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));

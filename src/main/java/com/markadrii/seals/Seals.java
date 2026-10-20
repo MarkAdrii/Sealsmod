@@ -1,6 +1,7 @@
 package com.markadrii.seals;
 
 import com.markadrii.seals.network.ModNetwork;
+import com.markadrii.seals.registry.ModBlocks;
 import com.markadrii.seals.registry.ModCreativeTabs;
 import com.markadrii.seals.registry.ModEntities;
 import com.markadrii.seals.registry.ModItems;
@@ -20,6 +21,7 @@ public class Seals {
     public Seals() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
+        ModBlocks.BLOCKS.register(modBus);
         ModItems.ITEMS.register(modBus);
         ModEntities.ENTITIES.register(modBus);
         ModCreativeTabs.TABS.register(modBus);
