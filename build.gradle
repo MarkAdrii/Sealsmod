@@ -72,9 +72,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     // VFX y partículas
-    implementation(fg.deobf("team.lodestar.lodestone:lodestone:${lodestone_version}")) {
-        transitive = false
-    }
+    implementation fg.deobf("team.lodestar.lodestone:lodestone:${lodestone_version}", { transitive = false })
     // Animaciones del jugador
     implementation fg.deobf("dev.kosmx.player-anim:player-animation-lib-forge:${player_anim_version}")
 }
