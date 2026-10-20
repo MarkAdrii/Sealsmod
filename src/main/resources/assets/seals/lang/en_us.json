@@ -206,7 +206,6 @@
   "message.seals.wolf.wait": "Your wolf doesn't trust you enough yet (%s days left)",
   "affinity.seals.reason.hunt": "hunting",
   "affinity.seals.reason.meat": "eating meat",
-  "stability.seals.reason.wolf": "wolf",
   "ability.seals.instinto_primal": "Primal Instinct",
   "ability.seals.instinto_primal.desc": "You awaken the wolf's instinct: you run faster, sense every nearby creature (they glow even through walls) and see their name above their head. Your eyes glow red and leave a small trail.",
   "ability.seals.hombre_lobo": "Werewolf",
@@ -216,7 +215,7 @@
   "stat.seals.blocks": "blocks",
   "seal.seals.wolf.bond": "You carry the spirit of your wolf. It is loyal to the death and will always protect you, but it never forgives harm done to the pack.",
   "seal.seals.wolf.affinity": "The wolf likes: hunting (sheep, rabbits, foxes, chickens and skeletons, +1), killing hostile mobs (+1), you eating meat (+1), defeating a boss (+50) and you using its abilities (+1 every minute).",
-  "seal.seals.wolf.stability": "The wolf is angered by: killing wolves (-10) or your other pets (-5). If the seal breaks, a furious wolf with double health comes out.",
+  "seal.seals.wolf.stability": "Your wolf never gets angry with you, whatever you do: its seal cannot be broken by force. It can only be broken in peace from its inner world, and it will be your wolf again.",
   "seal.seals.wolf.talk.0": "*Sniffs your hand and wags its tail*",
   "seal.seals.wolf.talk.1": "I smell a skeleton nearby. Shall we go after it?",
   "seal.seals.wolf.talk.2": "The moon is almost full. I feel it in my bones.",
@@ -248,5 +247,7 @@
   "seal.seals.wolf.inner.bond.wait": "I'm still tired. Come back in %s days.",
   "seal.seals.wolf.inner.break.ask": "You want to let me out? I'd be your usual wolf again, by your side. Are you sure?",
   "seal.seals.wolf.inner.break.done": "*Barks happily* Let's go outside!",
-  "seal.seals.wolf.inner.bye": "*Wags its tail* Come back soon."
+  "seal.seals.wolf.inner.bye": "*Wags its tail* Come back soon.",
+  "screen.seals.unbreakable": "Unbreakable",
+  "command.seals.stability_locked": "%s's seal cannot be broken by force"
 }

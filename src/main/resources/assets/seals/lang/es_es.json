@@ -206,7 +206,6 @@
   "message.seals.wolf.wait": "Tu lobo aún no confía lo suficiente en ti (faltan %s días)",
   "affinity.seals.reason.hunt": "caza",
   "affinity.seals.reason.meat": "comer carne",
-  "stability.seals.reason.wolf": "lobo",
   "ability.seals.instinto_primal": "Instinto primal",
   "ability.seals.instinto_primal.desc": "Despiertas el instinto del lobo: corres más rápido, sientes a todas las criaturas cercanas (brillan aunque haya paredes) y ves su nombre sobre la cabeza. Tus ojos brillan en rojo y dejan una pequeña estela.",
   "ability.seals.hombre_lobo": "Hombre lobo",
@@ -216,7 +215,7 @@
   "stat.seals.blocks": "bloques",
   "seal.seals.wolf.bond": "Llevas sellado el espíritu de tu lobo. Es leal hasta la muerte y te protegerá siempre, pero no perdona que se haga daño a la manada.",
   "seal.seals.wolf.affinity": "Al lobo le gusta: cazar (ovejas, conejos, zorros, gallinas y esqueletos, +1), matar criaturas hostiles (+1), que comas carne (+1), derrotar a un boss (+50) y que uses sus habilidades (+1 cada minuto).",
-  "seal.seals.wolf.stability": "Al lobo le enfada: matar lobos (-10) o a tus otras mascotas (-5). Si se rompe el sello, sale un lobo furioso con el doble de vida.",
+  "seal.seals.wolf.stability": "Tu lobo nunca se enfada contigo, hagas lo que hagas: su sello no se puede romper por la fuerza. Solo se puede romper en paz desde su mundo interior, y volverá a ser tu lobo.",
   "seal.seals.wolf.talk.0": "*Te olfatea la mano y mueve la cola*",
   "seal.seals.wolf.talk.1": "Huelo un esqueleto cerca. ¿Vamos a por él?",
   "seal.seals.wolf.talk.2": "La luna está casi llena. Lo noto en los huesos.",
@@ -248,5 +247,7 @@
   "seal.seals.wolf.inner.bond.wait": "Aún estoy cansado. Vuelve en %s días.",
   "seal.seals.wolf.inner.break.ask": "¿Quieres dejarme salir? Volvería a ser tu lobo de siempre, a tu lado. ¿Seguro?",
   "seal.seals.wolf.inner.break.done": "*Ladra contento* ¡Vamos fuera!",
-  "seal.seals.wolf.inner.bye": "*Mueve la cola* Vuelve pronto."
+  "seal.seals.wolf.inner.bye": "*Mueve la cola* Vuelve pronto.",
+  "screen.seals.unbreakable": "Inquebrantable",
+  "command.seals.stability_locked": "El sello de %s no se puede romper por la fuerza"
 }

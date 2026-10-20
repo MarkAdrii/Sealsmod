@@ -150,6 +150,14 @@ public abstract class SealDefinition {
         return 0;
     }
 
+    /**
+     * Si es true, la estabilidad nunca baja y el sello no se puede romper por la fuerza
+     * (solo en paz desde el mundo interior).
+     */
+    public boolean stabilityLocked() {
+        return false;
+    }
+
     /** Nivel necesario para invocar su versión mini (-1 = no tiene). */
     public int miniUnlockLevel() {
         return -1;

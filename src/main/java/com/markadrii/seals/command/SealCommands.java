@@ -351,6 +351,10 @@ public final class SealCommands {
     private static boolean stabilitySet(CommandSourceStack source, ServerPlayer player, int value) {
         SealData data = requireSeal(source, player);
         if (data == null) return false;
+        if (data.definition().stabilityLocked()) {
+            source.sendFailure(Component.translatable("command.seals.stability_locked", data.definition().name()));
+            return false;
+        }
         if (value <= 0) {
             SealManager.breakSeal(player, data);
             ok(source, Component.translatable("command.seals.broken", player.getDisplayName()));

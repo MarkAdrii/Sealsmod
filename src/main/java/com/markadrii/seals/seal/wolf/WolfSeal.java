@@ -20,7 +20,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Chicken;
@@ -66,8 +65,6 @@ public class WolfSeal extends SealDefinition {
     public static final int AFFINITY_HOSTILE = 1;
     public static final int AFFINITY_BOSS = 50;
     public static final int AFFINITY_MEAT = 1;
-    public static final int STABILITY_WOLF = 10;
-    public static final int STABILITY_PET = 5;
 
     public static final int SLOT_INSTINCT = 0;
     public static final int SLOT_WEREWOLF = 1;
@@ -202,12 +199,13 @@ public class WolfSeal extends SealDefinition {
             SealManager.addAffinity(player, data, AFFINITY_HOSTILE, "affinity.seals.reason.hostile");
         }
 
-        if (!byPlayer) return;
-        if (victim instanceof Wolf) {
-            SealManager.damageStability(player, data, STABILITY_WOLF, "stability.seals.reason.wolf");
-        } else if (victim instanceof OwnableEntity pet && player.getUUID().equals(pet.getOwnerUUID())) {
-            SealManager.damageStability(player, data, STABILITY_PET, "stability.seals.reason.pet");
-        }
+        // El lobo nunca se enfada contigo: no hay pérdida de estabilidad
+    }
+
+    /** Su sello solo se puede romper en paz, desde el mundo interior. */
+    @Override
+    public boolean stabilityLocked() {
+        return true;
     }
 
     /** Comer carne le gusta al lobo. */
@@ -287,28 +285,6 @@ public class WolfSeal extends SealDefinition {
         SealManager.setModifier(player, Attributes.ARMOR, WEREWOLF_ARMOR_ID, "", 0, AttributeModifier.Operation.ADDITION);
         SealManager.setModifier(player, Attributes.ATTACK_DAMAGE, WEREWOLF_ATTACK_ID, "", 0, AttributeModifier.Operation.ADDITION);
         SealManager.setModifier(player, Attributes.MOVEMENT_SPEED, WEREWOLF_SPEED_ID, "", 0, AttributeModifier.Operation.MULTIPLY_BASE);
-    }
-
-    /** El sello se rompe: sale un lobo furioso con el doble de vida. */
-    @Override
-    public void onSealBroken(ServerPlayer player, SealData data) {
-        ServerLevel level = player.serverLevel();
-        Wolf wolf = EntityType.WOLF.create(level);
-        if (wolf == null) return;
-        Vec3 look = player.getLookAngle().multiply(1, 0, 1).normalize();
-        wolf.moveTo(player.getX() + look.x * 2, player.getY(), player.getZ() + look.z * 2, player.getYRot() + 180, 0);
-        var hp = wolf.getAttribute(Attributes.MAX_HEALTH);
-        if (hp != null) hp.setBaseValue(40.0);
-        var dmg = wolf.getAttribute(Attributes.ATTACK_DAMAGE);
-        if (dmg != null) dmg.setBaseValue(6.0);
-        wolf.setHealth(wolf.getMaxHealth());
-        wolf.setCustomName(Component.translatable("entity.seals.freed_wolf").withStyle(ChatFormatting.DARK_RED));
-        wolf.setPersistenceRequired();
-        level.addFreshEntity(wolf);
-        wolf.setPersistentAngerTarget(player.getUUID());
-        wolf.startPersistentAngerTimer();
-        wolf.setTarget(player);
-        level.playSound(null, wolf.blockPosition(), SoundEvents.WOLF_GROWL, SoundSource.HOSTILE, 1.5F, 0.5F);
     }
 
     // ---------------------------------------------------------------------------------------

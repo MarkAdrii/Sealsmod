@@ -183,8 +183,10 @@ public class SealScreen extends Screen {
 
         // Estabilidad
         int stabColor = data.stability() <= 30 ? 0xFFB02020 : t.stabilityBar();
-        y = labeledBar(g, x, y, bw, Component.translatable("screen.seals.stability"), data.stability() + " / 100",
-                data.stability() / 100F, stabColor, t);
+        String stab = def.stabilityLocked() ? Component.translatable("screen.seals.unbreakable").getString()
+                : data.stability() + " / 100";
+        y = labeledBar(g, x, y, bw, Component.translatable("screen.seals.stability"), stab,
+                def.stabilityLocked() ? 1F : data.stability() / 100F, stabColor, t);
         if (hover(mouseX, mouseY, x, y - 20, bw, 19)) info = Info.STABILITY;
 
         // Edad y etapa (Joven, Adulto, Anciano...)

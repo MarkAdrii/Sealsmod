@@ -132,7 +132,7 @@ public final class SealManager {
 
     public static void damageStability(ServerPlayer player, SealData data, int amount, String reason) {
         SealDefinition def = data.definition();
-        if (def == null || amount <= 0) return;
+        if (def == null || amount <= 0 || def.stabilityLocked()) return;
 
         data.setStability(data.stability() - amount);
         player.displayClientMessage(Component.translatable("message.seals.stability_loss", amount,
@@ -152,7 +152,7 @@ public final class SealManager {
 
     public static void breakSeal(ServerPlayer player, SealData data) {
         SealDefinition def = data.definition();
-        if (def == null) return;
+        if (def == null || def.stabilityLocked()) return;
         if (data.inInner()) com.markadrii.seals.world.InnerWorld.exit(player, data);
         com.markadrii.seals.bond.BondManager.despawnMini(player, data);
         def.deactivateAll(player, data);
