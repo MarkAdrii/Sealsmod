@@ -42,6 +42,24 @@ public abstract class SealDefinition {
 
     public abstract SealTheme theme();
 
+    /**
+     * Índices (en {@link #abilities()}) de las habilidades que se activan con tecla.
+     * Las pasivas no van en la barra de combate: siempre están activas.
+     */
+    public java.util.List<Integer> combatSlots() {
+        java.util.List<Integer> list = new java.util.ArrayList<>();
+        for (int i = 0; i < abilities().size(); i++) {
+            if (abilities().get(i).kind() != SealAbility.Kind.PASSIVE) list.add(i);
+        }
+        return list;
+    }
+
+    /** Tecla (1-9) de una habilidad en modo combate, o 0 si es pasiva. */
+    public int combatKey(int abilityIndex) {
+        int k = combatSlots().indexOf(abilityIndex);
+        return k < 0 ? 0 : k + 1;
+    }
+
     public Component name() {
         return entityType().getDescription();
     }

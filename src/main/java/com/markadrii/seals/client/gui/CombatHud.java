@@ -36,8 +36,10 @@ public final class CombatHud {
         SealTheme theme = def.theme();
         Font font = mc.font;
         List<SealAbility> abilities = def.abilities();
+        List<Integer> slots = def.combatSlots(); // solo las que se activan (las pasivas no van aquí)
 
-        int count = abilities.size();
+        int count = slots.size();
+        if (count == 0) return;
         int barW = count * SLOT + 4;
         int x0 = width / 2 - barW / 2;
         int y0 = height - SLOT - 4;
@@ -53,9 +55,10 @@ public final class CombatHud {
         g.fill(width / 2 - tw / 2 - 4, y0 - 13, width / 2 + tw / 2 + 4, y0 - 2, theme.header());
         g.drawString(font, title, width / 2 - tw / 2, y0 - 11, theme.headerText(), false);
 
-        for (int i = 0; i < count; i++) {
+        for (int k = 0; k < count; k++) {
+            int i = slots.get(k);
             SealAbility ability = abilities.get(i);
-            int sx = x0 + 2 + i * SLOT;
+            int sx = x0 + 2 + k * SLOT;
             int sy = y0 + 2;
             boolean unlocked = ability.unlocked(data);
             boolean active = def.abilityActive(data, i);
@@ -84,7 +87,7 @@ public final class CombatHud {
             }
 
             // Número de tecla
-            String key = String.valueOf(i + 1);
+            String key = String.valueOf(k + 1);
             g.drawString(font, key, sx + 2, sy + 1, 0xFFFFFFFF, true);
         }
 

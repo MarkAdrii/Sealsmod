@@ -194,9 +194,12 @@ public final class ClientForgeEvents {
 
         // En modo combate, las teclas 1-9 lanzan habilidades en lugar de cambiar de hueco
         if (ClientSealData.combatMode() && mc.screen == null) {
+            var def = ClientSealData.get().definition();
+            java.util.List<Integer> slots = def == null ? java.util.List.of() : def.combatSlots();
             for (int i = 0; i < 9; i++) {
                 while (mc.options.keyHotbarSlots[i].consumeClick()) {
-                    ModNetwork.CHANNEL.sendToServer(new C2SAbilityPacket(i));
+                    // La tecla i lanza la i-ésima habilidad activable (las pasivas no tienen tecla)
+                    if (i < slots.size()) ModNetwork.CHANNEL.sendToServer(new C2SAbilityPacket(slots.get(i)));
                 }
             }
         }

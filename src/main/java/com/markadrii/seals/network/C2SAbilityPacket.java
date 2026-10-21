@@ -24,7 +24,8 @@ public record C2SAbilityPacket(int slot) {
         if (player != null && msg.slot >= 0 && msg.slot < 9 && player.isAlive()) {
             SealData data = SealCapability.get(player);
             SealDefinition def = data.definition();
-            if (def != null && msg.slot < def.abilities().size()) {
+            if (def != null && msg.slot < def.abilities().size()
+                    && def.abilities().get(msg.slot).kind() != com.markadrii.seals.seal.SealAbility.Kind.PASSIVE) {
                 def.activate(player, data, msg.slot);
             }
         }

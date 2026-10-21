@@ -1,5 +1,6 @@
 package com.markadrii.seals.client.render;
 
+import com.markadrii.seals.Seals;
 import com.markadrii.seals.seal.SealVisuals;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -21,11 +22,20 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 /**
- * Forma abisal del Elder Guardian: escamas con la textura del Elder Guardian sobre la skin,
+ * Forma abisal del Elder Guardian: escamas sólidas con degradado de sus colores sobre la skin,
+ * manchas de esos colores en la propia piel,
  * pinchos en la cabeza, la espalda y los brazos, y una cola que se mueve.
  */
 public class AbyssalLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
     private static final ResourceLocation ELDER = new ResourceLocation("minecraft", "textures/entity/guardian_elder.png");
+    private static final ResourceLocation SCALES = Seals.id("textures/entity/abyssal_scales.png");
+    private static final ResourceLocation PATCHES = Seals.id("textures/entity/abyssal_patches.png");
+
+    // Copias del modelo del jugador, algo infladas, para pintar encima de la skin (como una armadura)
+    private final PlayerModel<AbstractClientPlayer> scalesWide = shell(0.30F, false);
+    private final PlayerModel<AbstractClientPlayer> scalesSlim = shell(0.30F, true);
+    private final PlayerModel<AbstractClientPlayer> patchesWide = shell(0.02F, false);
+    private final PlayerModel<AbstractClientPlayer> patchesSlim = shell(0.02F, true);
 
     private final ModelPart body;
     private final ModelPart head;
@@ -96,13 +106,11 @@ public class AbyssalLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<
         int overlay = LivingEntityRenderer.getOverlayCoords(player, 0.0F);
         PlayerModel<AbstractClientPlayer> model = getParentModel();
 
-        // Escamas sobre la skin
-        poseStack.pushPose();
-        poseStack.scale(1.03F, 1.03F, 1.03F);
-        VertexConsumer scales = buffer.getBuffer(RenderType.entityTranslucent(ELDER));
-        float shimmer = 0.62F + 0.08F * Mth.sin(ageInTicks * 0.1F);
-        model.renderToBuffer(poseStack, scales, packedLight, overlay, 0.85F, 1.0F, 0.95F, shimmer);
-        poseStack.popPose();
+        // 1) Manchas con los colores del Elder Guardian pegadas a la skin (en los huecos de las escamas)
+        // 2) Escamas sólidas con degradado, un poco por encima de la skin, como una armadura
+        boolean slim = "slim".equals(player.getModelName());
+        renderShell(poseStack, buffer, packedLight, overlay, model, slim ? patchesSlim : patchesWide, PATCHES);
+        renderShell(poseStack, buffer, packedLight, overlay, model, slim ? scalesSlim : scalesWide, SCALES);
 
         // Cola que se mueve
         float swing = Mth.sin(ageInTicks * 0.12F) * 0.3F + Mth.cos(limbSwing * 0.6662F) * 0.35F * limbSwingAmount;
@@ -116,6 +124,28 @@ public class AbyssalLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<
         renderOn(poseStack, model.head, head, vc, packedLight, overlay);
         renderOn(poseStack, model.rightArm, rightArm, vc, packedLight, overlay);
         renderOn(poseStack, model.leftArm, leftArm, vc, packedLight, overlay);
+    }
+
+    private static PlayerModel<AbstractClientPlayer> shell(float inflate, boolean slim) {
+        MeshDefinition mesh = PlayerModel.createMesh(new CubeDeformation(inflate), slim);
+        PlayerModel<AbstractClientPlayer> m = new PlayerModel<>(LayerDefinition.create(mesh, 64, 64).bakeRoot(), slim);
+        // Solo la capa base: la capa exterior de la skin (gorro, chaqueta...) no se usa
+        m.hat.visible = false;
+        m.jacket.visible = false;
+        m.leftSleeve.visible = false;
+        m.rightSleeve.visible = false;
+        m.leftPants.visible = false;
+        m.rightPants.visible = false;
+        return m;
+    }
+
+    /** Pinta una capa sólida (sin transparencia parcial) que se mueve igual que el jugador. */
+    private static void renderShell(PoseStack poseStack, MultiBufferSource buffer, int light, int overlay,
+                                    PlayerModel<AbstractClientPlayer> parent, PlayerModel<AbstractClientPlayer> shell,
+                                    ResourceLocation texture) {
+        parent.copyPropertiesTo(shell);
+        VertexConsumer vc = buffer.getBuffer(RenderType.entityCutoutNoCull(texture));
+        shell.renderToBuffer(poseStack, vc, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     /** Dibuja {@code extra} pegado a la pieza del jugador (se mueve con ella). */

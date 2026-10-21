@@ -387,5 +387,6 @@
   "seal.seals.cat.inner.bond.wait": "I'm sleepy. Come back in %s days.",
   "seal.seals.cat.inner.break.ask": "You want to let me out? I'd be your usual cat again, at home. Are you sure?",
   "seal.seals.cat.inner.break.done": "*Meows and jumps into your arms* Let's go home.",
-  "seal.seals.cat.inner.bye": "*Closes its eyes* Yeah, yeah. Go."
+  "seal.seals.cat.inner.bye": "*Closes its eyes* Yeah, yeah. Go.",
+  "screen.seals.ability.passive": "Passive · always active, no key needed"
 }

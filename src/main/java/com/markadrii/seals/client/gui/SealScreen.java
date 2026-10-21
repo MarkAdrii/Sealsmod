@@ -387,7 +387,9 @@ public class SealScreen extends Screen {
 
         Component status;
         if (a.unlocked(data)) {
-            status = Component.translatable("screen.seals.ability.unlocked", selected + 1);
+            int key = def.combatKey(selected);
+            status = key == 0 ? Component.translatable("screen.seals.ability.passive")
+                    : Component.translatable("screen.seals.ability.unlocked", key);
         } else {
             status = Component.translatable("screen.seals.ability.locked", a.unlockLevel() - 1);
         }

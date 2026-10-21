@@ -387,5 +387,6 @@
   "seal.seals.cat.inner.bond.wait": "Tengo sueño. Vuelve en %s días.",
   "seal.seals.cat.inner.break.ask": "¿Quieres dejarme salir? Volvería a ser tu gato de siempre, en tu casa. ¿Seguro?",
   "seal.seals.cat.inner.break.done": "*Maúlla y salta a tus brazos* Vamos a casa.",
-  "seal.seals.cat.inner.bye": "*Cierra los ojos* Ya, ya. Vete."
+  "seal.seals.cat.inner.bye": "*Cierra los ojos* Ya, ya. Vete.",
+  "screen.seals.ability.passive": "Pasiva · siempre activa, no hace falta pulsar nada"
 }
