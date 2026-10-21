@@ -1,6 +1,10 @@
 {
-  "parent": "minecraft:item/handheld",
-  "textures": {
-    "layer0": "seals:item/abyssal_trident"
+  "loader": "forge:separate_transforms",
+  "gui_light": "front",
+  "base": { "parent": "seals:item/abyssal_trident_in_hand" },
+  "perspectives": {
+    "gui": { "parent": "seals:item/abyssal_trident_icon" },
+    "ground": { "parent": "seals:item/abyssal_trident_icon" },
+    "fixed": { "parent": "seals:item/abyssal_trident_icon" }
   }
 }

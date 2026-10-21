@@ -135,6 +135,17 @@ public class AbyssalTridentItem extends TridentItem {
         }
     }
 
+    /** En la mano se dibuja en 3D con el modelo de tridente (solo en el cliente). */
+    @Override
+    public void initializeClient(java.util.function.Consumer<net.minecraftforge.client.extensions.common.IClientItemExtensions> consumer) {
+        consumer.accept(new net.minecraftforge.client.extensions.common.IClientItemExtensions() {
+            @Override
+            public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return com.markadrii.seals.client.render.AbyssalTridentItemRenderer.get();
+            }
+        });
+    }
+
     @Override
     public boolean isFoil(ItemStack stack) {
         return true;

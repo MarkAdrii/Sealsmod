@@ -27,9 +27,10 @@ import net.minecraft.util.Mth;
  * pinchos en la cabeza, la espalda y los brazos, y una cola que se mueve.
  */
 public class AbyssalLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
-    private static final ResourceLocation ELDER = new ResourceLocation("minecraft", "textures/entity/guardian_elder.png");
     private static final ResourceLocation SCALES = Seals.id("textures/entity/abyssal_scales.png");
     private static final ResourceLocation PATCHES = Seals.id("textures/entity/abyssal_patches.png");
+    /** Pinchos y cola, con los mismos colores que las escamas. */
+    private static final ResourceLocation EXTRAS = Seals.id("textures/entity/abyssal_extras.png");
 
     // Copias del modelo del jugador, algo infladas, para pintar encima de la skin (como una armadura)
     private final PlayerModel<AbstractClientPlayer> scalesWide = shell(0.30F, false);
@@ -119,7 +120,7 @@ public class AbyssalLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<
         tail2.yRot = swing * 1.2F;
         tail0.xRot = 0.5F + limbSwingAmount * 0.3F;
 
-        VertexConsumer vc = buffer.getBuffer(RenderType.entityCutoutNoCull(ELDER));
+        VertexConsumer vc = buffer.getBuffer(RenderType.entityCutoutNoCull(EXTRAS));
         renderOn(poseStack, model.body, body, vc, packedLight, overlay);
         renderOn(poseStack, model.head, head, vc, packedLight, overlay);
         renderOn(poseStack, model.rightArm, rightArm, vc, packedLight, overlay);
