@@ -85,10 +85,10 @@ public final class SealScreenEffect {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
 
-        // Oscurecer y teñir de rojo
-        int dark = (int) (alpha * (seal ? 150 : 120)) << 24;
-        g.fill(0, 0, width, height, dark | 0x1A0000);
-        RenderSystem.setShaderColor(0.6F, 0.0F, 0.0F, alpha);
+        // Fondo rojo sangre en toda la pantalla (también en el centro), con bordes más oscuros
+        int red = (int) (alpha * 225) << 24;
+        g.fill(0, 0, width, height, red | (seal ? 0x6A0008 : 0x55000A));
+        RenderSystem.setShaderColor(0.12F, 0.0F, 0.0F, alpha);
         g.blit(VIGNETTE, 0, 0, width, height, 0, 0, 256, 256, 256, 256);
         RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
 

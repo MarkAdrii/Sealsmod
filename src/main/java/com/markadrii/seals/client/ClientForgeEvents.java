@@ -208,8 +208,13 @@ public final class ClientForgeEvents {
     /** En modo combate se oculta la hotbar normal (la sustituye la de habilidades). */
     @SubscribeEvent
     public static void onOverlay(RenderGuiOverlayEvent.Pre event) {
-        if (!ClientSealData.combatMode()) return;
         var id = event.getOverlay().id();
+        // Durante la animación de sellado no se ve nada del HUD (hotbar, vida, objetos...)
+        if (SealScreenEffect.time(event.getPartialTick()) >= 0) {
+            if (!id.getPath().equals("seal_effect")) event.setCanceled(true);
+            return;
+        }
+        if (!ClientSealData.combatMode()) return;
         if (id.equals(VanillaGuiOverlay.HOTBAR.id()) || id.equals(VanillaGuiOverlay.ITEM_NAME.id())) {
             event.setCanceled(true);
         }
