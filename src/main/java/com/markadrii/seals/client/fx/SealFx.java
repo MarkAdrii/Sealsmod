@@ -31,6 +31,9 @@ public final class SealFx {
     private static final float[] WHITE = {1.00F, 1.00F, 1.00F};
     private static final float[] BLOOD = {0.85F, 0.05F, 0.05F};
     private static final float[] SEA = {0.20F, 0.70F, 0.65F};
+    private static final float[] CAT_GREEN = {0.65F, 1.00F, 0.20F};
+    private static final float[] CAT_YELLOW = {1.00F, 0.85F, 0.10F};
+    private static final float[] SHADOW = {0.10F, 0.08F, 0.14F};
     private static final float[] SEA_LIGHT = {0.70F, 1.00F, 0.95F};
     private static final float[] EMBER = {1.00F, 0.25F, 0.10F};
     private static final float[] FUR = {0.30F, 0.27F, 0.24F};
@@ -65,6 +68,14 @@ public final class SealFx {
             case BEAM_HIT -> burst(level, pos.add(0, entity != null ? entity.getBbHeight() * 0.5 : 1, 0),
                     LodestoneParticleRegistry.SPARK_PARTICLE, SEA_LIGHT, GOLD, 0.25F, 15, 0.3, 0.3, 30);
             case ABYSSAL -> abyssal(level, pos);
+            case CAT_SIGHT -> {
+                ring(level, pos.add(0, 1.4, 0), LodestoneParticleRegistry.WISP_PARTICLE, CAT_GREEN, CAT_YELLOW, 2.5, 30, 0.12F);
+                ring(level, pos.add(0, 0.1, 0), LodestoneParticleRegistry.WISP_PARTICLE, CAT_YELLOW, CAT_GREEN, 3.5, 40, 0.15F);
+            }
+            case CAT_FORM -> {
+                burst(level, pos.add(0, 0.6, 0), LodestoneParticleRegistry.SMOKE_PARTICLE, SHADOW, SHADOW, 0.7F, 30, 0.06, 0.6, 30);
+                burst(level, pos.add(0, 0.6, 0), LodestoneParticleRegistry.SPARKLE_PARTICLE, CAT_GREEN, CAT_YELLOW, 0.15F, 20, 0.1, 0.5, 14);
+            }
         }
     }
 
@@ -278,8 +289,30 @@ public final class SealFx {
      * Estela de los ojos rojos. Sale exactamente de los ojos del modelo y sigue a la cabeza
      * (giro e inclinación), tanto en forma humana como de hombre lobo.
      */
-    public static void eyeTrail(Player player) {
+    public static void eyeTrail(Player player, boolean cat) {
         Level level = player.level();
+        float[] c1 = cat ? CAT_GREEN : EMBER;
+        float[] c2 = cat ? CAT_YELLOW : BLOOD;
+
+        // En forma de gato los ojos están en la cabeza del gato (bajos y adelantados)
+        if (com.markadrii.seals.seal.SealVisuals.catForm(player)) {
+            float by = (float) Math.toRadians(player.yBodyRot);
+            Vec3 fwd = new Vec3(-Math.sin(by), 0, Math.cos(by));
+            Vec3 rgt = new Vec3(-Math.cos(by), 0, -Math.sin(by));
+            Vec3 base = player.position().add(0, 0.5, 0).add(fwd.scale(0.55));
+            for (int side = -1; side <= 1; side += 2) {
+                Vec3 p = base.add(rgt.scale(0.07 * side));
+                WorldParticleBuilder.create(LodestoneParticleRegistry.WISP_PARTICLE)
+                        .setScaleData(GenericParticleData.create(0.05F, 0.0F).build())
+                        .setTransparencyData(GenericParticleData.create(0.9F, 0F).build())
+                        .setColorData(color(c1, c2))
+                        .setLifetime(10)
+                        .setFullBrightLighting()
+                        .enableNoClip()
+                        .spawn(level, p.x, p.y, p.z);
+            }
+            return;
+        }
         boolean wolf = com.markadrii.seals.seal.SealVisuals.werewolf(player);
 
         // Medidas del modelo (en píxeles de modelo, 16 px = 1 bloque)
@@ -305,7 +338,7 @@ public final class SealFx {
             WorldParticleBuilder.create(LodestoneParticleRegistry.WISP_PARTICLE)
                     .setScaleData(GenericParticleData.create(0.06F, 0.0F).build())
                     .setTransparencyData(GenericParticleData.create(0.9F, 0F).build())
-                    .setColorData(color(EMBER, BLOOD))
+                    .setColorData(color(c1, c2))
                     .setLifetime(10)
                     .setFullBrightLighting()
                     .enableNoClip()

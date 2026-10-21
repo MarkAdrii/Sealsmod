@@ -35,6 +35,7 @@ public class SealData {
     private boolean werewolf;          // Hombre lobo
     private int werewolfTicks;
     private int werewolfCooldown;
+    private long lastGiftDay = -100;   // Gato: último regalo matutino
 
     // --- Elder Guardian ---
     private int submergedTicks;        // ticks bajo el agua hoy
@@ -108,6 +109,7 @@ public class SealData {
         werewolf = false;
         werewolfTicks = 0;
         werewolfCooldown = 0;
+        lastGiftDay = -100;
         lastTalkDay = -100;
         lastEnterDay = -100;
         lastBondDay = -100;
@@ -161,6 +163,7 @@ public class SealData {
         tag.putBoolean("werewolf", werewolf);
         tag.putInt("werewolfTicks", werewolfTicks);
         tag.putInt("werewolfCooldown", werewolfCooldown);
+        tag.putLong("lastGiftDay", lastGiftDay);
         tag.putLong("lastTalkDay", lastTalkDay);
         tag.putLong("lastEnterDay", lastEnterDay);
         tag.putLong("lastBondDay", lastBondDay);
@@ -207,6 +210,7 @@ public class SealData {
         werewolf = tag.getBoolean("werewolf");
         werewolfTicks = tag.getInt("werewolfTicks");
         werewolfCooldown = tag.getInt("werewolfCooldown");
+        lastGiftDay = tag.contains("lastGiftDay") ? tag.getLong("lastGiftDay") : -100;
         lastTalkDay = tag.contains("lastTalkDay") ? tag.getLong("lastTalkDay") : -100;
         lastEnterDay = tag.contains("lastEnterDay") ? tag.getLong("lastEnterDay") : -100;
         lastBondDay = tag.contains("lastBondDay") ? tag.getLong("lastBondDay") : -100;
@@ -285,6 +289,9 @@ public class SealData {
     public void setWerewolfTicks(int t) { this.werewolfTicks = t; }
     public int werewolfCooldown() { return werewolfCooldown; }
     public void setWerewolfCooldown(int t) { this.werewolfCooldown = t; }
+
+    public long lastGiftDay() { return lastGiftDay; }
+    public void setLastGiftDay(long d) { this.lastGiftDay = d; }
 
     public long lastTalkDay() { return lastTalkDay; }
     public void setLastTalkDay(long d) { this.lastTalkDay = d; }

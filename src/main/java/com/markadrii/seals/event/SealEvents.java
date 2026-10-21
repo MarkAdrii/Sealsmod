@@ -10,6 +10,12 @@ import com.markadrii.seals.network.S2CFxPacket;
 import com.markadrii.seals.network.S2CScreenEffectPacket;
 import com.markadrii.seals.registry.ModBlocks;
 import com.markadrii.seals.seal.elder.ElderGuardianSeal;
+import com.markadrii.seals.seal.cat.CatSeal;
+import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -332,13 +338,50 @@ public final class SealEvents {
     @SubscribeEvent
     public static void onSize(EntityEvent.Size event) {
         if (!(event.getEntity() instanceof Player player)) return;
+        boolean golem, cat;
         try {
-            if (!SealVisuals.golemForm(player)) return;
+            golem = SealVisuals.golemForm(player);
+            cat = SealVisuals.catForm(player);
         } catch (Exception e) {
             return; // el jugador aún se está creando
         }
-        event.setNewSize(event.getNewSize().scale(IronGolemSeal.FORM_SCALE));
-        event.setNewEyeHeight(event.getNewEyeHeight() * IronGolemSeal.FORM_SCALE);
+        if (cat) {
+            // Tamaño de gato: cabe por huecos de un bloque
+            event.setNewSize(net.minecraft.world.entity.EntityDimensions.scalable(0.6F, 0.7F));
+            event.setNewEyeHeight(0.5F);
+        } else if (golem) {
+            event.setNewSize(event.getNewSize().scale(IronGolemSeal.FORM_SCALE));
+            event.setNewEyeHeight(event.getNewEyeHeight() * IronGolemSeal.FORM_SCALE);
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // Gato
+    // ---------------------------------------------------------------------------------------
+
+    /** Forma de gato: saltos mucho más altos. */
+    @SubscribeEvent
+    public static void onJump(LivingEvent.LivingJumpEvent event) {
+        if (event.getEntity() instanceof Player p && SealVisuals.catForm(p)) {
+            p.setDeltaMovement(p.getDeltaMovement().add(0, CatSeal.JUMP_BOOST, 0));
+        }
+    }
+
+    /** Regalo matutino al despertar por la mañana. */
+    @SubscribeEvent
+    public static void onWake(PlayerWakeUpEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player && !event.wakeImmediately() && player.level().isDay()) {
+            SealData data = SealCapability.get(player);
+            if (data.definition() instanceof CatSeal) CatSeal.morningGift(player, data);
+        }
+    }
+
+    /** Los creepers huyen de quien lleva un gato sellado, igual que huyen de los gatos. */
+    @SubscribeEvent
+    public static void onJoin(EntityJoinLevelEvent event) {
+        if (event.getLevel().isClientSide() || !(event.getEntity() instanceof Creeper creeper)) return;
+        creeper.goalSelector.addGoal(3, new AvoidEntityGoal<>(creeper, Player.class, 6.0F, 1.0, 1.2,
+                e -> e instanceof Player p && CatSeal.carries(p)));
     }
 
     // ---------------------------------------------------------------------------------------

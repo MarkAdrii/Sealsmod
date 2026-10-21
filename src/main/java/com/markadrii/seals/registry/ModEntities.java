@@ -5,6 +5,7 @@ import com.markadrii.seals.entity.HolyGolemEntity;
 import com.markadrii.seals.entity.InnerGolemEntity;
 import com.markadrii.seals.entity.InnerWolfEntity;
 import com.markadrii.seals.entity.InnerElderEntity;
+import com.markadrii.seals.entity.InnerCatEntity;
 import com.markadrii.seals.entity.AbyssalTridentEntity;
 import com.markadrii.seals.entity.MiniGolemEntity;
 import net.minecraft.world.entity.EntityType;
@@ -57,6 +58,12 @@ public class ModEntities {
                     .updateInterval(20)
                     .build(Seals.id("abyssal_trident").toString()));
 
+    public static final RegistryObject<EntityType<InnerCatEntity>> INNER_CAT = ENTITIES.register("inner_cat",
+            () -> EntityType.Builder.<InnerCatEntity>of(InnerCatEntity::new, MobCategory.MISC)
+                    .sized(0.6F * InnerCatEntity.RENDER_SCALE, 0.7F * InnerCatEntity.RENDER_SCALE)
+                    .clientTrackingRange(10)
+                    .build(Seals.id("inner_cat").toString()));
+
     @SubscribeEvent
     public static void onAttributes(EntityAttributeCreationEvent event) {
         event.put(HOLY_GOLEM.get(), HolyGolemEntity.createAttributes().build());
@@ -64,5 +71,6 @@ public class ModEntities {
         event.put(INNER_GOLEM.get(), InnerGolemEntity.createAttributes().build());
         event.put(INNER_WOLF.get(), InnerWolfEntity.createAttributes().build());
         event.put(INNER_ELDER.get(), InnerElderEntity.createAttributes().build());
+        event.put(INNER_CAT.get(), InnerCatEntity.createAttributes().build());
     }
 }

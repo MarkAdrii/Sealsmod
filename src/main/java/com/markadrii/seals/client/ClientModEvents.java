@@ -55,6 +55,8 @@ public final class ClientModEvents {
                 ctx -> new ScaledWolfRenderer(ctx, InnerWolfEntity.RENDER_SCALE));
         event.registerEntityRenderer(ModEntities.INNER_ELDER.get(),
                 net.minecraft.client.renderer.entity.ElderGuardianRenderer::new);
+        event.registerEntityRenderer(ModEntities.INNER_CAT.get(),
+                ctx -> new com.markadrii.seals.client.render.ScaledCatRenderer(ctx, com.markadrii.seals.entity.InnerCatEntity.RENDER_SCALE));
         event.registerEntityRenderer(ModEntities.ABYSSAL_TRIDENT.get(),
                 com.markadrii.seals.client.render.AbyssalTridentRenderer::new);
     }

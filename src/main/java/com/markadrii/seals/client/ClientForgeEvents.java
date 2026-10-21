@@ -6,6 +6,16 @@ import com.markadrii.seals.client.gui.SealScreen;
 import com.markadrii.seals.client.gui.SealScreenEffect;
 import com.markadrii.seals.client.render.WerewolfRenderer;
 import com.markadrii.seals.seal.wolf.WolfSeal;
+import com.markadrii.seals.seal.cat.CatSeal;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.Cat;
+import net.minecraft.world.entity.animal.CatVariant;
+import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.event.RenderHandEvent;
+import java.util.HashMap;
+import java.util.Map;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -64,10 +74,13 @@ public final class ClientForgeEvents {
             com.markadrii.seals.client.fx.BeamFx.tick();
             // Estela roja de los ojos
             for (Player p : mc.level.players()) {
-                if (!SealVisuals.eyes(p) || p.isInvisible()) continue;
+                boolean wolfEyes = SealVisuals.eyes(p);
+                boolean catEyes = SealVisuals.catEyes(p);
+                if ((!wolfEyes && !catEyes) || p.isInvisible()) continue;
                 if (p == mc.player && mc.options.getCameraType().isFirstPerson()) continue;
-                SealFx.eyeTrail(p);
+                SealFx.eyeTrail(p, catEyes);
             }
+            tickCatForms(mc);
             // Mundo interior: niebla dorada y ondas al caminar
             if (mc.level.dimension() == InnerWorld.KEY && ClientSealData.inInner()) {
                 SealFx.innerAmbient(mc.level, ClientSealData.innerDoor(), mc.player);
@@ -83,11 +96,13 @@ public final class ClientForgeEvents {
 
     private static void tickInstinct(Minecraft mc) {
         boolean on = ClientSealData.get().hasSeal() && ClientSealData.get().instinct();
+        boolean cat = ClientSealData.get().definition() instanceof CatSeal;
         Set<Integer> now = new HashSet<>();
         if (on) {
-            double r = WolfSeal.INSTINCT_RANGE;
+            double r = cat ? CatSeal.SIGHT_RANGE : WolfSeal.INSTINCT_RANGE;
             for (Entity e : mc.level.entitiesForRendering()) {
                 if (e == mc.player || !(e instanceof LivingEntity) || !e.isAlive()) continue;
+                if (cat && !(e instanceof Enemy)) continue; // el gato solo resalta a los enemigos
                 if (e.distanceToSqr(mc.player) > r * r) continue;
                 now.add(e.getId());
                 EntityFlagsAccess.setLocalGlow(e, true);
@@ -199,6 +214,79 @@ public final class ClientForgeEvents {
 
     // --- "Yo soy el golem": el jugador se dibuja más grande ------------------------------
 
+    // --- Forma de gato: el jugador se dibuja como un gato negro -------------------------
+
+    /** Un gato "de mentira" por jugador transformado, que copia sus movimientos para animarse. */
+    private static final Map<Integer, Cat> CAT_DUMMIES = new HashMap<>();
+    private static double climbBase = Double.NaN;
+
+    private static void tickCatForms(Minecraft mc) {
+        CAT_DUMMIES.entrySet().removeIf(e -> {
+            Entity p = mc.level.getEntity(e.getKey());
+            return !(p instanceof Player pl) || !SealVisuals.catForm(pl) || e.getValue().level() != mc.level;
+        });
+        for (Player p : mc.level.players()) {
+            if (!SealVisuals.catForm(p)) continue;
+            Cat cat = CAT_DUMMIES.computeIfAbsent(p.getId(), id -> {
+                Cat c = new Cat(EntityType.CAT, mc.level);
+                c.setVariant(BuiltInRegistries.CAT_VARIANT.getOrThrow(CatVariant.ALL_BLACK));
+                c.yBodyRot = p.yBodyRot;
+                c.yHeadRot = p.yHeadRot;
+                return c;
+            });
+            cat.yBodyRotO = cat.yBodyRot;
+            cat.yBodyRot = p.yBodyRot;
+            cat.yHeadRotO = cat.yHeadRot;
+            cat.yHeadRot = p.yHeadRot;
+            cat.xRotO = cat.getXRot();
+            cat.setXRot(Math.max(-30F, Math.min(30F, p.getXRot())));
+            cat.yRotO = cat.getYRot();
+            cat.setYRot(p.getYRot());
+            cat.tickCount = p.tickCount;
+            cat.hurtTime = p.hurtTime;
+            cat.setOnGround(p.onGround());
+            cat.setSprinting(p.isSprinting());
+            cat.setInSittingPose(p.isCrouching() && p.getDeltaMovement().horizontalDistanceSqr() < 0.0001);
+            double dx = p.getX() - p.xo, dz = p.getZ() - p.zo;
+            cat.walkAnimation.update(Math.min((float) Math.sqrt(dx * dx + dz * dz) * 4.0F, 1.0F), 0.4F);
+        }
+
+        // Trepar: andando contra una pared subes, hasta 5 bloques por encima de donde empezaste
+        Player me = mc.player;
+        if (me != null && SealVisuals.catForm(me) && !me.isSpectator()) {
+            if (me.onGround()) climbBase = me.getY();
+            boolean pushing = me.zza != 0 || me.xxa != 0;
+            if (me.horizontalCollision && pushing) {
+                if (Double.isNaN(climbBase)) climbBase = me.getY();
+                if (me.getY() - climbBase < CatSeal.CLIMB_BLOCKS) {
+                    Vec3 v = me.getDeltaMovement();
+                    me.setDeltaMovement(v.x, Math.max(v.y, 0.22), v.z);
+                    me.fallDistance = 0;
+                }
+            }
+        } else {
+            climbBase = Double.NaN;
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void onRenderCat(RenderPlayerEvent.Pre event) {
+        if (!(event.getEntity() instanceof AbstractClientPlayer player) || !SealVisuals.catForm(player)) return;
+        Cat cat = CAT_DUMMIES.get(player.getId());
+        if (cat == null) return;
+        event.setCanceled(true);
+        float yaw = Mth.lerp(event.getPartialTick(), player.yRotO, player.getYRot());
+        Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(cat)
+                .render(cat, yaw, event.getPartialTick(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight());
+    }
+
+    /** Un gato no tiene manos: en primera persona no se ve el brazo ni lo que llevas. */
+    @SubscribeEvent
+    public static void onRenderHand(RenderHandEvent event) {
+        Player p = Minecraft.getInstance().player;
+        if (p != null && SealVisuals.catForm(p)) event.setCanceled(true);
+    }
+
     // --- Hombre lobo: se dibuja con su propio modelo ------------------------------------
 
     @SubscribeEvent(priority = EventPriority.HIGH)
@@ -242,6 +330,7 @@ public final class ClientForgeEvents {
         ClientSealData.reset();
         SealVisuals.clearClient();
         SENSED.clear();
+        CAT_DUMMIES.clear();
         com.markadrii.seals.client.fx.BeamFx.clear();
     }
 }

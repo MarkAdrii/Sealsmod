@@ -30,7 +30,9 @@ public record S2CFxPacket(Type type, double x, double y, double z, int entityId)
         WEREWOLF,      // lobo: transformación en hombre lobo
         CLAW,          // lobo: zarpazo
         BEAM_HIT,      // elder: impacto del rayo
-        ABYSSAL        // elder: forma abisal / tridente
+        ABYSSAL,       // elder: forma abisal / tridente
+        CAT_SIGHT,     // gato: se activan los ojos felinos
+        CAT_FORM       // gato: transformación en gato negro
     }
 
     public static void encode(S2CFxPacket msg, FriendlyByteBuf buf) {
